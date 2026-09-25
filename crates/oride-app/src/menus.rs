@@ -3,13 +3,6 @@
 use oride_i18n::Locale;
 use oride_ui::{MenuColumn, MenuItem};
 
-/// Menus default do Oride (labels + action_id + shortcut visual).
-#[must_use]
-#[allow(dead_code)]
-pub fn default_menus() -> Vec<MenuColumn> {
-    menus_for_locale(&Locale::PtBr)
-}
-
 /// Constrói menus localizados de acordo com o `Locale`.
 #[must_use]
 pub fn menus_for_locale(locale: &Locale) -> Vec<MenuColumn> {

@@ -76,7 +76,8 @@ Linha só com imagem vira card:
 - Soft wrap: scroll vertical usa linhas lógicas + altura visual
 - Preview de imagem = placeholder (não pixels), exceto quando **M2** (protocolo do terminal) estiver on
 - Tabelas sem alinhamento de colunas avançado
-- Links ainda não são clicáveis (planejado **M1**)
+- Links abrem no navegador do sistema por clique ou `Alt+Enter` (`M1`, entregue)
+- Imagens locais têm dimensões e tipo inspecionados em Rust; protocolos de terminal gráfico (Kitty, Sixel, iTerm2) são detectados (`M2`, entregue)
 
 ## Roadmap MD (normativo)
 
@@ -86,8 +87,8 @@ Ver **[`docs/planning/alpha6-roadmap.md`](planning/alpha6-roadmap.md)** seções
 |------|-----------|--------|
 | Highlight + fence inject | oris/js/html/css (+ langs L1) | feito / expandir L1 |
 | Preview Markdown TUI | painel read-only | feito + placeholders |
-| **Links → browser do sistema** | clique/ação no preview; não é “preview no browser” | **M1 planejado** |
-| **Imagens no terminal** | Kitty/Sixel/iTerm best-effort; flag off default | **M2 planejado** |
+| **Links → browser do sistema** | clique/ação no preview; não é “preview no browser” | **M1 entregue** |
+| **Imagens no terminal** | Kitty/Sixel/iTerm best-effort; flag off default | **M2 entregue** |
 | Preview HTML/browser do documento | — | **fora de escopo** |
 | MDX/JSX real | — | fora (contido) |
 

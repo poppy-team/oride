@@ -622,6 +622,55 @@ fn lsp_position_to_byte(text: &str, position: Position) -> Option<usize> {
 
 #[cfg(test)]
 mod tests {
+    // A snippet comes from the server, so it is untrusted input: a malformed one
+    // must produce a degraded completion, never a panic that takes down the
+    // editor. These cases pin that.
+    #[test]
+    fn malformed_snippets_do_not_panic() {
+        use super::snippet_to_plain_text;
+
+        let cases = [
+            "",
+            "$",
+            "${",
+            "$}",
+            "${}",
+            "${:}",
+            "${a",
+            "${a:",
+            "${a:${b}",
+            "$1",
+            "$99999999999999999999",
+            "a$",
+            "a${",
+            "${nome}",
+            "${1:nome}",
+            "まで${1:日本語}",
+            "${1:日本語",
+            "$$",
+            "${}}",
+            "${1:${2:x}}",
+            "\u{1F600}${1:😀}",
+            "${1:😀",
+            "$😀",
+            "}",
+        ];
+        for snippet in cases {
+            // The assertion is that this returns at all.
+            let _ = snippet_to_plain_text(snippet);
+        }
+    }
+
+    #[test]
+    fn converts_plain_snippets() {
+        use super::snippet_to_plain_text;
+
+        assert_eq!(snippet_to_plain_text("return"), "return");
+        assert_eq!(snippet_to_plain_text("${1:nome}"), "nome");
+        assert_eq!(snippet_to_plain_text("${1}"), "");
+        assert_eq!(snippet_to_plain_text("$1aceita"), "aceita");
+    }
+
     use super::*;
 
     #[test]

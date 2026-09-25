@@ -25,13 +25,25 @@ struct UiHarness {
 }
 
 impl UiHarness {
+    /// Habilita o mouse no app sob teste.
+    ///
+    /// O produto vem com mouse desligado (a captura toma o terminal do usuário),
+    /// mas este harness existe justamente para dirigir mouse e teclado — então
+    /// ele opta explicitamente em vez de depender do default. O default do
+    /// produto é verificado por `mouse_is_off_by_default`.
+    fn opt_in_to_mouse(app: &mut App) {
+        app.mouse_enabled = true;
+    }
+
     fn new(width: u16, height: u16) -> Self {
         let backend = TestBackend::new(width, height);
         let terminal = Terminal::new(backend).expect("falha ao criar terminal virtual de teste");
         let workspace = std::env::temp_dir();
         let mut store = oride_core::DocumentStore::new();
         store.open_empty();
-        let app = App::from_store_with_config(store, oride_config::Config::default(), workspace);
+        let mut app =
+            App::from_store_with_config(store, oride_config::Config::default(), workspace);
+        Self::opt_in_to_mouse(&mut app);
         let mut harness = Self { app, terminal };
         harness.render();
         harness
@@ -40,7 +52,8 @@ impl UiHarness {
     fn with_workspace(dir: PathBuf, width: u16, height: u16) -> Self {
         let backend = TestBackend::new(width, height);
         let terminal = Terminal::new(backend).expect("falha ao criar terminal virtual");
-        let app = App::open_workspace(dir).expect("falha ao abrir workspace");
+        let mut app = App::open_workspace(dir).expect("falha ao abrir workspace");
+        Self::opt_in_to_mouse(&mut app);
         let mut harness = Self { app, terminal };
         harness.render();
         harness
@@ -217,6 +230,21 @@ impl UiHarness {
         }
         self.render();
     }
+}
+
+#[test]
+fn mouse_is_off_by_default() {
+    // O harness opta por mouse para poder dirigi-lo; este teste garante que o
+    // produto, sem opt-in, não captura o terminal do usuário.
+    let mut store = oride_core::DocumentStore::new();
+    store.open_empty();
+    let app =
+        App::from_store_with_config(store, oride_config::Config::default(), std::env::temp_dir());
+    assert!(
+        !app.mouse_enabled,
+        "mouse precisa vir desligado: com captura ligada, seleção e cópia nativas do terminal param de funcionar"
+    );
+    assert!(!oride_config::Config::default().mouse);
 }
 
 #[test]

@@ -20,7 +20,7 @@
 ## 📦 Shipped Releases
 
 ### [x] `v0.1.0` — Contained TUI Mini-IDE Baseline
-- [x] **Editor Core:** High-performance Ropey buffers, buffer tabs, branching undo/redo history, selections, and comments.
+- [x] **Editor Core:** High-performance Ropey buffers, buffer tabs, grouped undo/redo history, selections, and comments.
 - [x] **Project Navigation & Tree:** Navigable file tree, folder/file creation/renaming/deletion, Nerd Font icons with clean ASCII fallback.
 - [x] **Embedded Terminal:** Interactive real PTY (`portable-pty`), resizing, and focus switching.
 - [x] **Integrated Search:** In-buffer search (case, accents, regex) and project-wide search via ripgrep/internal crawler.

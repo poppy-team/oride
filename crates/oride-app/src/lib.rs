@@ -4,6 +4,7 @@ mod app;
 mod browser;
 mod clipboard;
 pub mod component;
+pub mod conformance;
 mod disk_watch;
 mod find;
 pub mod health;
@@ -21,6 +22,9 @@ pub use app::{App, CompletionChoice, Focus, KeyCommand, Overlay};
 pub use component::{
     Component, ComponentId, ComponentRegistry, EditorComponent, MenuBarComponent, ScmComponent,
     StatusBarComponent, TerminalComponent, TreeComponent,
+};
+pub use conformance::{
+    dump_state, run_case, ConformanceCase, ConformanceError, StateDump, DUMP_SCHEMA_VERSION,
 };
 pub use mouse::{HitRegions, HitTarget};
 pub use oride_i18n::Locale;

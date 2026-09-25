@@ -20,7 +20,7 @@
 ## 📦 Versões Entregues (Shipped)
 
 ### [x] `v0.1.0` — Baseline da Mini-IDE TUI Contida
-- [x] **Core do Editor:** Buffers eficientes com Ropey, abas de documentos, histórico de undo/redo ramificado, seleção e comentários.
+- [x] **Core do Editor:** Buffers eficientes com Ropey, abas de documentos, histórico de undo/redo com agrupamento de edições, seleção e comentários.
 - [x] **Navegação & Árvore:** Árvore de projeto navegável, criação/renomeação/remoção de pastas e arquivos, ícones Nerd Fonts com fallback ASCII.
 - [x] **Terminal Embutido:** Terminal interativo com PTY real (`portable-pty`), redimensionamento e chaveamento de foco.
 - [x] **Busca Integrada:** Busca em buffer (case, acentos, regex) e busca recursiva no projeto via ripgrep/crawler interno.
@@ -36,7 +36,7 @@
 - [x] **Persistência de Sessão:** Restauração transparente de scroll, splits, arquivos abertos e largura da árvore em `.oride/session.toml`.
 - [x] **Busca e Substituição com Globs:** Substituição no projeto inteiro (`Ctrl+Shift+F`) com filtragem por globs (`*.rs`, `!target/**`).
 - [x] **Edição Modal Estilo Vim:** Modos `Normal`, `Insert`, `Visual`, `VisualLine` e linha de comando `:`.
-- [x] **Task Runner Integrado:** Execução declarativa de scripts em `tasks.toml` com interpolação de variáveis (`$FILE`, `$DIR`, `$WORKSPACE`).
+- [x] **Task Runner Integrado:** Execução declarativa de scripts em `tasks.toml` com interpolação de variáveis (`$FILE`, `$FILE_NAME`, `$FILE_STEM`, `$FILE_DIR`, `$WORKSPACE`, `$LINE`, `$COL`).
 - [x] **Diagnóstico de Ambiente (`:health`):** Verificador preventivo de ferramentas, compiladores e servidores LSP no `$PATH`.
 - [x] **Internacionalização Dinâmica (i18n):** Catálogos externos TOML (`pt-BR`, `en-US`) e guias de temas customizados.
 - [x] **Empacotamento Multi-Distro & Instaladores Universais:** Pacotes para Arch Linux (`PKGBUILD`), Debian/Ubuntu (`.deb`), Fedora (`.spec`), Void e Nix (`flake.nix`), instaladores one-line para Linux, macOS e Windows.

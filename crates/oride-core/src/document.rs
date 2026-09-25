@@ -436,7 +436,19 @@ impl Document {
         let new_head = ByteOffset::new(at.as_usize() + text.len());
         self.selection = Selection::caret(new_head);
         self.mark_modified();
+        self.commit_newline_boundary(text);
         Ok(())
+    }
+
+    /// Enter fecha o grupo de undo aberto.
+    ///
+    /// Sem isso, digitar, pressionar Enter e digitar de novo coalesce num único
+    /// grupo, e um `Ctrl+Z` apaga as duas digitações e a quebra de linha. Todo
+    /// editor sério cria um ponto de undo no Enter, e o usuário conta com isso.
+    fn commit_newline_boundary(&mut self, inserted: &str) {
+        if inserted.contains('\n') {
+            self.undo.commit_group();
+        }
     }
 
     fn mark_modified(&mut self) {
@@ -466,6 +478,7 @@ impl Document {
             self.extra_carets = rest.to_vec();
         }
         self.mark_modified();
+        self.commit_newline_boundary(text);
         Ok(())
     }
 

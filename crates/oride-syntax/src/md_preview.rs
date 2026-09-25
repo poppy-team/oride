@@ -122,40 +122,94 @@ pub enum TerminalGraphicsCapability {
     Iterm2,
 }
 
-/// Detecta dinamicamente a compatibilidade do emulador de terminal com protocolos de imagem.
+/// As variáveis de ambiente que a detecção consulta.
+///
+/// Um valor em vez de `std::env::var` direto: a detecção passa a ser uma função
+/// pura sobre este tipo, testável sem tocar no ambiente do processo — que é
+/// estado global compartilhado por todos os testes que rodam em paralelo, e
+/// escrever nele é o que torna um teste instável sob carga.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct TerminalEnvironment {
+    vars: Vec<(String, String)>,
+}
+
+impl TerminalEnvironment {
+    /// Lê o ambiente do processo corrente.
+    #[must_use]
+    pub fn from_process() -> Self {
+        Self {
+            vars: std::env::vars().collect(),
+        }
+    }
+
+    /// Constrói um ambiente a partir de pares explícitos.
+    #[must_use]
+    pub fn from_pairs(pairs: &[(&str, &str)]) -> Self {
+        Self {
+            vars: pairs
+                .iter()
+                .map(|(k, v)| ((*k).to_string(), (*v).to_string()))
+                .collect(),
+        }
+    }
+
+    /// Consulta uma variável.
+    #[must_use]
+    pub fn get(&self, key: &str) -> Option<&str> {
+        self.vars
+            .iter()
+            .find(|(name, _)| name == key)
+            .map(|(_, value)| value.as_str())
+    }
+}
+
+/// Detecta a compatibilidade do emulador de terminal com protocolos de imagem.
+///
+/// Lê o ambiente do processo. Um chamador que já conheça a capacidade — o app,
+/// que a resolve uma vez — deve usar [`TerminalGraphicsCapability::detect`]
+/// diretamente, para não reler o ambiente a cada quadro nem impedir um teste de
+/// injetá-la.
 #[must_use]
 pub fn detect_terminal_graphics() -> TerminalGraphicsCapability {
-    if std::env::var("KITTY_WINDOW_ID").is_ok()
-        || std::env::var("GHOSTTY_RESOURCES_DIR").is_ok()
-        || std::env::var("WEZTERM_PANE").is_ok()
-    {
-        return TerminalGraphicsCapability::Kitty;
-    }
-    if let Ok(term) = std::env::var("TERM") {
-        let term_lower = term.to_ascii_lowercase();
-        if term_lower.contains("kitty") || term_lower.contains("ghostty") {
-            return TerminalGraphicsCapability::Kitty;
-        }
-        if term_lower.contains("sixel") || term_lower.contains("foot") {
-            return TerminalGraphicsCapability::Sixel;
-        }
-        if term_lower.contains("iterm") {
-            return TerminalGraphicsCapability::Iterm2;
-        }
-    }
-    if let Ok(term_prog) = std::env::var("TERM_PROGRAM") {
-        let prog_lower = term_prog.to_ascii_lowercase();
-        if prog_lower.contains("wezterm")
-            || prog_lower.contains("ghostty")
-            || prog_lower.contains("kitty")
+    TerminalGraphicsCapability::detect(&TerminalEnvironment::from_process())
+}
+
+impl TerminalGraphicsCapability {
+    /// Detecta a capacidade a partir de um ambiente.
+    #[must_use]
+    pub fn detect(env: &TerminalEnvironment) -> Self {
+        if env.get("KITTY_WINDOW_ID").is_some()
+            || env.get("GHOSTTY_RESOURCES_DIR").is_some()
+            || env.get("WEZTERM_PANE").is_some()
         {
-            return TerminalGraphicsCapability::Kitty;
+            return Self::Kitty;
         }
-        if prog_lower.contains("iterm") {
-            return TerminalGraphicsCapability::Iterm2;
+        if let Some(term) = env.get("TERM") {
+            let term_lower = term.to_ascii_lowercase();
+            if term_lower.contains("kitty") || term_lower.contains("ghostty") {
+                return Self::Kitty;
+            }
+            if term_lower.contains("sixel") || term_lower.contains("foot") {
+                return Self::Sixel;
+            }
+            if term_lower.contains("iterm") {
+                return Self::Iterm2;
+            }
         }
+        if let Some(term_prog) = env.get("TERM_PROGRAM") {
+            let prog_lower = term_prog.to_ascii_lowercase();
+            if prog_lower.contains("wezterm")
+                || prog_lower.contains("ghostty")
+                || prog_lower.contains("kitty")
+            {
+                return Self::Kitty;
+            }
+            if prog_lower.contains("iterm") {
+                return Self::Iterm2;
+            }
+        }
+        Self::None
     }
-    TerminalGraphicsCapability::None
 }
 
 /// Formata contagem de bytes para string legível (B, KB, MB).
@@ -292,11 +346,33 @@ pub fn render_preview_lines_in(source: &str, base_dir: Option<&Path>) -> Vec<Pre
 }
 
 /// Renderiza Markdown com configuração de suporte a imagens de terminal.
+///
+/// A capacidade gráfica vem do ambiente do processo. Um chamador que já a
+/// conheça usa [`render_preview_lines_with_graphics`].
 #[must_use]
 pub fn render_preview_lines_with_config(
     source: &str,
     base_dir: Option<&Path>,
     terminal_images: bool,
+) -> Vec<PreviewLine> {
+    render_preview_lines_with_graphics(
+        source,
+        base_dir,
+        terminal_images,
+        detect_terminal_graphics(),
+    )
+}
+
+/// Renderiza Markdown com a capacidade gráfica fornecida pelo chamador.
+///
+/// É esta a porta que um teste deve usar: injetar a capacidade evita escrever no
+/// ambiente do processo, que é global e compartilhado.
+#[must_use]
+pub fn render_preview_lines_with_graphics(
+    source: &str,
+    base_dir: Option<&Path>,
+    terminal_images: bool,
+    graphics: TerminalGraphicsCapability,
 ) -> Vec<PreviewLine> {
     let mut out = Vec::new();
     let lines: Vec<&str> = source.lines().collect();
@@ -545,7 +621,7 @@ pub fn render_preview_lines_with_config(
 
         // linha só com imagem → card multi-linha
         if let Some((alt, url)) = parse_standalone_image(line) {
-            out.extend(image_card(&alt, &url, base_dir, terminal_images));
+            out.extend(image_card(&alt, &url, base_dir, terminal_images, graphics));
             idx += 1;
             continue;
         }
@@ -845,6 +921,7 @@ fn image_card(
     url: &str,
     base_dir: Option<&Path>,
     terminal_images: bool,
+    graphics: TerminalGraphicsCapability,
 ) -> Vec<PreviewLine> {
     let alt_show = if alt.is_empty() {
         "(sem texto alt)"
@@ -852,7 +929,7 @@ fn image_card(
         alt
     };
     let (path_line, status_style, status_note, meta_note) =
-        describe_image_target(url, base_dir, terminal_images);
+        describe_image_target(url, base_dir, terminal_images, graphics);
 
     let mut lines = vec![
         PreviewLine::styled("┌ 🖼  imagem", PreviewStyle::Image),
@@ -890,6 +967,7 @@ fn describe_image_target(
     url: &str,
     base_dir: Option<&Path>,
     terminal_images: bool,
+    graphics: TerminalGraphicsCapability,
 ) -> (String, PreviewStyle, String, Option<String>) {
     let url = url.trim();
     if url.is_empty() {
@@ -929,7 +1007,7 @@ fn describe_image_target(
             }
         });
 
-        let cap = detect_terminal_graphics();
+        let cap = graphics;
         let status = if terminal_images {
             match cap {
                 TerminalGraphicsCapability::Kitty => {
@@ -1480,5 +1558,94 @@ mod tests {
             .any(|l| l.segments.iter().any(|(t, s)| t.contains("PNG")
                 && t.contains("640x480 px")
                 && *s == PreviewStyle::Dim)));
+    }
+}
+
+#[cfg(test)]
+mod graphics_tests {
+    use super::{TerminalEnvironment, TerminalGraphicsCapability};
+
+    fn detect(pairs: &[(&str, &str)]) -> TerminalGraphicsCapability {
+        TerminalGraphicsCapability::detect(&TerminalEnvironment::from_pairs(pairs))
+    }
+
+    #[test]
+    fn a_bare_environment_has_no_graphics() {
+        assert_eq!(detect(&[]), TerminalGraphicsCapability::None);
+    }
+
+    #[test]
+    fn marker_variables_imply_kitty() {
+        // Cada uma destas é a marca de um emulador que fala o protocolo.
+        for key in ["KITTY_WINDOW_ID", "GHOSTTY_RESOURCES_DIR", "WEZTERM_PANE"] {
+            assert_eq!(
+                detect(&[(key, "1")]),
+                TerminalGraphicsCapability::Kitty,
+                "{key} deveria implicar Kitty"
+            );
+        }
+    }
+
+    #[test]
+    fn term_names_each_protocol() {
+        assert_eq!(
+            detect(&[("TERM", "xterm-kitty")]),
+            TerminalGraphicsCapability::Kitty
+        );
+        assert_eq!(
+            detect(&[("TERM", "xterm-ghostty")]),
+            TerminalGraphicsCapability::Kitty
+        );
+        assert_eq!(
+            detect(&[("TERM", "foot")]),
+            TerminalGraphicsCapability::Sixel
+        );
+        assert_eq!(
+            detect(&[("TERM", "xterm-sixel")]),
+            TerminalGraphicsCapability::Sixel
+        );
+        assert_eq!(
+            detect(&[("TERM", "xterm-256color")]),
+            TerminalGraphicsCapability::None
+        );
+    }
+
+    #[test]
+    fn term_matching_ignores_case() {
+        assert_eq!(
+            detect(&[("TERM", "XTERM-KITTY")]),
+            TerminalGraphicsCapability::Kitty
+        );
+    }
+
+    #[test]
+    fn term_program_is_consulted_after_term() {
+        assert_eq!(
+            detect(&[("TERM", "xterm-256color"), ("TERM_PROGRAM", "WezTerm")]),
+            TerminalGraphicsCapability::Kitty
+        );
+        assert_eq!(
+            detect(&[("TERM", "xterm-256color"), ("TERM_PROGRAM", "iTerm.app")]),
+            TerminalGraphicsCapability::Iterm2
+        );
+    }
+
+    #[test]
+    fn the_marker_wins_over_a_plain_term() {
+        assert_eq!(
+            detect(&[("TERM", "xterm-256color"), ("KITTY_WINDOW_ID", "1")]),
+            TerminalGraphicsCapability::Kitty
+        );
+    }
+
+    #[test]
+    fn a_plain_terminal_reports_nothing() {
+        assert_eq!(
+            detect(&[
+                ("TERM", "xterm-256color"),
+                ("TERM_PROGRAM", "Apple_Terminal")
+            ]),
+            TerminalGraphicsCapability::None
+        );
     }
 }

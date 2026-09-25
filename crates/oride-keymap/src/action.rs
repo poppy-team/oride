@@ -99,7 +99,217 @@ pub enum Action {
     RunTasks,
 }
 
+/// Toda ação distinta, na ordem em que os ids `extend` aparecem no TOML.
+///
+/// É a tabela canônica de ações do produto: `id()` e `ALL` juntos tornam o
+/// mapeamento id↔variante bidirecional e verificável, em vez de depender de o
+/// `parse_action` e o keymap concordarem por disciplina.
+pub const ALL: &[Action] = &[
+    Action::Quit,
+    Action::Save,
+    Action::SaveAs,
+    Action::SaveAll,
+    Action::Undo,
+    Action::Redo,
+    Action::InsertNewline,
+    Action::InsertTab,
+    Action::Backspace,
+    Action::Delete,
+    Action::MoveLeft { extend: false },
+    Action::MoveRight { extend: false },
+    Action::MoveUp { extend: false },
+    Action::MoveDown { extend: false },
+    Action::MoveLineStart { extend: false },
+    Action::MoveLineEnd { extend: false },
+    Action::MoveDocStart { extend: false },
+    Action::MoveDocEnd { extend: false },
+    Action::MoveLeft { extend: true },
+    Action::MoveRight { extend: true },
+    Action::MoveUp { extend: true },
+    Action::MoveDown { extend: true },
+    Action::MoveLineStart { extend: true },
+    Action::MoveLineEnd { extend: true },
+    Action::MoveDocStart { extend: true },
+    Action::MoveDocEnd { extend: true },
+    Action::SelectAll,
+    Action::PageUp,
+    Action::PageDown,
+    Action::ToggleTree,
+    Action::ToggleTerminal,
+    Action::TerminalGrow,
+    Action::TerminalShrink,
+    Action::FocusTree,
+    Action::FocusEditor,
+    Action::FocusTerminal,
+    Action::NextTab,
+    Action::PrevTab,
+    Action::CloseTab,
+    Action::NewTab,
+    Action::CommandPalette,
+    Action::OpenFileFuzzy,
+    Action::TreeNewFile,
+    Action::TreeNewDir,
+    Action::TreeRefresh,
+    Action::OpenFolder,
+    Action::FocusToggleTreeEditor,
+    Action::ToggleSoftWrap,
+    Action::ToggleComment,
+    Action::ToggleMdPreview,
+    Action::Help,
+    Action::Find,
+    Action::FindNext,
+    Action::FindPrev,
+    Action::ProjectFind,
+    Action::ProjectReplace,
+    Action::Replace,
+    Action::Copy,
+    Action::Paste,
+    Action::Cut,
+    Action::ReloadFile,
+    Action::LspComplete,
+    Action::LspHover,
+    Action::LspGotoDefinition,
+    Action::LspFormat,
+    Action::ToggleDiagnostics,
+    Action::SplitVertical,
+    Action::SplitHorizontal,
+    Action::FocusNextPane,
+    Action::ClosePane,
+    Action::ResizePaneGrow,
+    Action::ResizePaneShrink,
+    Action::TreeGrow,
+    Action::TreeShrink,
+    Action::AddCursorAbove,
+    Action::AddCursorBelow,
+    Action::ClearExtraCursors,
+    Action::ToggleScm,
+    Action::FocusScm,
+    Action::GitPull,
+    Action::GitPush,
+    Action::BufferPicker,
+    Action::JumpBack,
+    Action::JumpForward,
+    Action::WhichKey,
+    Action::Welcome,
+    Action::ShowDiff,
+    Action::Surround,
+    Action::MultiPicker,
+    Action::UndoTree,
+    Action::ToggleMouse,
+    Action::SelectTheme,
+    Action::SelectLocale,
+    Action::HealthCheck,
+    Action::ToggleModal,
+    Action::RunTasks,
+];
+
 impl Action {
+    /// Id estável usado em TOML, na palette e no modo conformance.
+    ///
+    /// `MoveLeft { extend: true }` devolve `move_left_extend`: a variante com
+    /// `extend` é uma ação distinta, não uma modalidade da mesma ação.
+    #[must_use]
+    pub fn id(self) -> &'static str {
+        match self {
+            Self::Quit => "quit",
+            Self::Save => "save",
+            Self::SaveAs => "save_as",
+            Self::SaveAll => "save_all",
+            Self::Undo => "undo",
+            Self::Redo => "redo",
+            Self::InsertNewline => "insert_newline",
+            Self::InsertTab => "insert_tab",
+            Self::Backspace => "backspace",
+            Self::Delete => "delete",
+            Self::MoveLeft { extend: false } => "move_left",
+            Self::MoveRight { extend: false } => "move_right",
+            Self::MoveUp { extend: false } => "move_up",
+            Self::MoveDown { extend: false } => "move_down",
+            Self::MoveLineStart { extend: false } => "move_line_start",
+            Self::MoveLineEnd { extend: false } => "move_line_end",
+            Self::MoveDocStart { extend: false } => "move_doc_start",
+            Self::MoveDocEnd { extend: false } => "move_doc_end",
+            Self::MoveLeft { extend: true } => "move_left_extend",
+            Self::MoveRight { extend: true } => "move_right_extend",
+            Self::MoveUp { extend: true } => "move_up_extend",
+            Self::MoveDown { extend: true } => "move_down_extend",
+            Self::MoveLineStart { extend: true } => "move_line_start_extend",
+            Self::MoveLineEnd { extend: true } => "move_line_end_extend",
+            Self::MoveDocStart { extend: true } => "move_doc_start_extend",
+            Self::MoveDocEnd { extend: true } => "move_doc_end_extend",
+            Self::SelectAll => "select_all",
+            Self::PageUp => "page_up",
+            Self::PageDown => "page_down",
+            Self::ToggleTree => "toggle_tree",
+            Self::ToggleTerminal => "toggle_terminal",
+            Self::TerminalGrow => "terminal_grow",
+            Self::TerminalShrink => "terminal_shrink",
+            Self::TreeGrow => "tree_grow",
+            Self::TreeShrink => "tree_shrink",
+            Self::FocusTree => "focus_tree",
+            Self::FocusEditor => "focus_editor",
+            Self::FocusTerminal => "focus_terminal",
+            Self::NextTab => "next_tab",
+            Self::PrevTab => "prev_tab",
+            Self::CloseTab => "close_tab",
+            Self::NewTab => "new_tab",
+            Self::CommandPalette => "command_palette",
+            Self::OpenFileFuzzy => "open_file_fuzzy",
+            Self::TreeNewFile => "tree_new_file",
+            Self::TreeNewDir => "tree_new_dir",
+            Self::TreeRefresh => "tree_refresh",
+            Self::OpenFolder => "open_folder",
+            Self::FocusToggleTreeEditor => "focus_toggle_tree_editor",
+            Self::ToggleSoftWrap => "toggle_soft_wrap",
+            Self::ToggleComment => "toggle_comment",
+            Self::ToggleMdPreview => "toggle_md_preview",
+            Self::Help => "help",
+            Self::Find => "find",
+            Self::FindNext => "find_next",
+            Self::FindPrev => "find_prev",
+            Self::ProjectFind => "project_find",
+            Self::ProjectReplace => "project_replace",
+            Self::Replace => "replace",
+            Self::Copy => "copy",
+            Self::Paste => "paste",
+            Self::Cut => "cut",
+            Self::ReloadFile => "reload_file",
+            Self::LspComplete => "lsp_complete",
+            Self::LspHover => "lsp_hover",
+            Self::LspGotoDefinition => "lsp_goto_definition",
+            Self::LspFormat => "lsp_format",
+            Self::ToggleDiagnostics => "toggle_diagnostics",
+            Self::SplitVertical => "split_vertical",
+            Self::SplitHorizontal => "split_horizontal",
+            Self::FocusNextPane => "focus_next_pane",
+            Self::ClosePane => "close_pane",
+            Self::ResizePaneGrow => "resize_pane_grow",
+            Self::ResizePaneShrink => "resize_pane_shrink",
+            Self::AddCursorAbove => "add_cursor_above",
+            Self::AddCursorBelow => "add_cursor_below",
+            Self::ClearExtraCursors => "clear_extra_cursors",
+            Self::ToggleScm => "toggle_scm",
+            Self::FocusScm => "focus_scm",
+            Self::GitPull => "git_pull",
+            Self::GitPush => "git_push",
+            Self::BufferPicker => "buffer_picker",
+            Self::JumpBack => "jump_back",
+            Self::JumpForward => "jump_forward",
+            Self::WhichKey => "which_key",
+            Self::Welcome => "welcome",
+            Self::ShowDiff => "show_diff",
+            Self::Surround => "surround",
+            Self::MultiPicker => "multi_picker",
+            Self::UndoTree => "undo_tree",
+            Self::ToggleMouse => "toggle_mouse",
+            Self::SelectTheme => "select_theme",
+            Self::SelectLocale => "select_locale",
+            Self::HealthCheck => "health_check",
+            Self::ToggleModal => "toggle_modal",
+            Self::RunTasks => "run_tasks",
+        }
+    }
+
     #[must_use]
     pub fn palette_label(self) -> &'static str {
         match self {
@@ -383,7 +593,76 @@ pub fn parse_action(id: &str) -> Result<Action, ActionParseError> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
     use super::*;
+
+    #[test]
+    fn id_roundtrips_through_parse_action() {
+        for action in ALL {
+            let id = action.id();
+            let parsed =
+                parse_action(id).unwrap_or_else(|error| panic!("id `{id}` não parseia: {error}"));
+            assert_eq!(
+                parsed, *action,
+                "id `{id}` volta como {parsed:?} em vez de {action:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn all_covers_every_variant_exactly_once() {
+        let unique: HashSet<&'static str> = ALL.iter().map(|action| action.id()).collect();
+        assert_eq!(
+            unique.len(),
+            ALL.len(),
+            "ALL tem id repetido: {} ids para {} ações",
+            unique.len(),
+            ALL.len()
+        );
+    }
+
+    #[test]
+    fn parse_action_rejects_unknown_ids() {
+        assert!(parse_action("does_not_exist").is_err());
+        assert!(parse_action("").is_err());
+    }
+
+    #[test]
+    fn aliases_and_canonical_ids_agree() {
+        // Aliases documentados devem resolver para a mesma ação do id canônico.
+        for (alias, canonical) in [
+            ("display_language", Action::SelectLocale),
+            ("modal_mode", Action::ToggleModal),
+            ("tasks", Action::RunTasks),
+            ("checkhealth", Action::HealthCheck),
+        ] {
+            assert_eq!(parse_action(alias).unwrap(), canonical);
+            assert_eq!(parse_action(alias).unwrap().id(), canonical.id());
+        }
+    }
+
+    #[test]
+    fn every_palette_action_exists_and_is_listed_once() {
+        let mut seen = HashSet::new();
+        for action in Action::palette_actions() {
+            assert!(
+                ALL.contains(action),
+                "{action:?} está na palette mas fora de ALL"
+            );
+            assert!(seen.insert(action.id()), "{action:?} duplicada na palette");
+        }
+    }
+
+    #[test]
+    fn every_action_has_a_label() {
+        for action in ALL {
+            assert!(
+                !action.palette_label().is_empty(),
+                "{action:?} sem palette_label"
+            );
+        }
+    }
 
     #[test]
     fn parses_polish_and_lsp_actions() {

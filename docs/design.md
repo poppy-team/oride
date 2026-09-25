@@ -36,7 +36,7 @@ Diferente de editores puramente textuais simples, o **Oride** inclui:
 | UI | `ratatui` + `crossterm` | Padrão TUI Rust 2024–26 |
 | Buffer de texto | `ropey` | Rope eficiente, undo-friendly |
 | Highlight | `tree-sitter` + grammars embutidas | Incremental, AST preciso (Rust, C, Bash, MD, etc.) |
-| Terminal embutido | `portable-pty` + parser VTE (`vte`) | PTY real + shell interativo |
+| Terminal embutido | `portable-pty` + scrollback com CSI mínimo | PTY real + shell interativo; sem emulador de tela (não há alt-screen nem wrap) |
 | Config | **TOML** (`serde` + `toml`) | Comentários, legível, ecossistema Rust; JSON só se export/import for necessário |
 | Keymap | crate próprio + TOML | Camadas: defaults → user → buffer-local |
 | LSP client | JSON-RPC stdio (sem tower no host se possível) | Consome `rust-analyzer`, `clangd`, `ori-lsp` e outros servers |
@@ -45,7 +45,7 @@ Diferente de editores puramente textuais simples, o **Oride** inclui:
 | Watch FS | `notify` | Reload / refresh da árvore |
 | Clipboard | `arboard` + OSC52 (SSH) | Como Micro |
 | Ícones | mapa extensão → glyph Nerd Font | Fallback ASCII se fonte não detectada |
-| Async I/O | `tokio` (LSP, PTY, notify) | Event loop UI síncrono + canais |
+| Async I/O | threads + canais; **sem** `tokio` | Event loop UI síncrono + canais |
 
 **Config: preferir TOML** (`~/.config/oride/config.toml` + `./.oride/config.toml` no projeto). Suportar comentários e overlays; evitar JSON como formato primário.
 
@@ -64,9 +64,9 @@ oride/                          # novo repositório
   crates/
     oride-core/                 # Document, Buffer(rope), Selection, Undo, tabs
     oride-fs/                   # Project tree, create/rename/delete, watch
-    oride-config/               # load/merge TOML, schema versionado
+    oride-config/               # load/merge TOML, schema versionado, temas
+    oride-i18n/                 # catálogos de mensagens (pt-BR, en)
     oride-keymap/               # KeyChord → Action (enum + string para plugins)
-    oride-theme/                # cores + estilos semânticos (syntax, ui, git)
     oride-syntax/               # LanguageId + tree-sitter queries
     oride-lsp/                  # client multi-server (stdio)
     oride-terminal/             # painel PTY, resize, focus
@@ -76,12 +76,11 @@ oride/                          # novo repositório
     oride-ui/                   # widgets ratatui (tree, editor, status, palette, term)
     oride-app/                  # composition, event loop, layout
     oride/                      # binário CLI: `oride [path]`
-  plugins/                      # built-ins (crates, feature = "builtin")
     lang-rust/
     lang-markdown/
     lang-web/                   # html, css, js
   assets/
-    icons.toml                  # extensão → nerd glyph
+    icons.rs                    # extensão → nerd glyph, com fallback ASCII
     themes/
       default.toml
       dark.toml
@@ -104,7 +103,7 @@ crossterm events ──► App
                       ├─ Keymap → Action
                       ├─ focus: Tree | Editor | Terminal | Palette | Dialog
                       ├─ DocumentStore (tabs, dirty, undo)
-                      ├─ channels ◄── tokio: LSP / PTY / notify / git
+                      ├─ channels ◄── threads: LSP / PTY / notify / git
                       └─ render(oride-ui)
 ```
 
@@ -137,7 +136,7 @@ Layout padrão:
 | 5 | Highlight nativo | Rust, C, Bash, Markdown, Ori (+ gramáticas dinâmicas) |
 | 6 | Completions / suggestions | LSP semântico + keywords offline por linguagem |
 | 7 | Config TOML | theme, language, keys, terminal shell, tree width |
-| 8 | Ícones | `icons.toml` + Nerd Font; fallback |
+| 8 | Ícones | `oride-fs/src/icons.rs` + Nerd Font; fallback ASCII |
 | 9 | Temas | cores UI + scopes syntax |
 | 10 | Keymaps custom | rebind de Actions; layers |
 | 11 | Find/replace | buffer atual; regex opcional |
@@ -306,7 +305,7 @@ Cada PR = um conceito; ordem topologicamente segura.
 |----|---------|------|
 | **P0.1** | Workspace Cargo, bin `oride`, `oride-core` (rope + undo + seleção), testes unitários | `cargo test` |
 | **P0.2** | `oride-ui` + loop: abrir arquivo, editar, salvar, quit, status line | demo TUI manual |
-| **P0.3** | `oride-config` TOML + `oride-keymap` + `oride-theme` default | rebind `ctrl+s` via TOML |
+| **P0.3** | `oride-config` TOML + `oride-keymap` + tema default | rebind `ctrl+s` via TOML |
 
 ### Fase 1 — IDE shell
 
@@ -335,7 +334,7 @@ Cada PR = um conceito; ordem topologicamente segura.
 | **P3.2** | Hover / completion / goto (UI) | projetos de exemplo |
 | **P3.3** | Format (LSP) + format on save config | formatação via LSP |
 
-### Fase 4 — Polimento 0.1
+### Fase 4 — Polimento 0.2
 
 | ID | Entrega | Gate |
 |----|---------|------|

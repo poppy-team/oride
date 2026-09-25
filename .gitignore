@@ -6,6 +6,21 @@
 .DS_Store
 .oride/
 .mimocode/
-# Project Atlas derived/runtime state
-.atlas/runtime/
-.atlas/cache/
+# Prumo: estado derivado e de execução.
+.prumo/runtime/
+.prumo/cache/
+
+# `.ai/skills/` é versionado de propósito. As skills do catálogo são
+# reproduzíveis pelo `prumo.lock`, mas as skills **locais** (as que o catálogo
+# não cobre) existem só aqui — e ignorar o diretório inteiro as esconderia em
+# silêncio. O custo é diff maior quando o workforce muda; a alternativa custa
+# perder conteúdo autoral sem aviso.
+
+# Go: o binário escrito por `go build ./cmd/oride` na raiz.
+/oride
+/oride.exe
+*.test
+coverage.out
+
+# Estado local do agente (taste/sessão), não é conteúdo do projeto
+.commandcode/

@@ -7,6 +7,6 @@ description = "Embedded PTY terminal panel for Oride"
 rust-version.workspace = true
 
 [dependencies]
+oride-osutil = { workspace = true }
 portable-pty = { workspace = true }
 thiserror = { workspace = true }
-strip-ansi-escapes = { workspace = true }

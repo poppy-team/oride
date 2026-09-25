@@ -31,6 +31,19 @@ fn is_ignored_path(path: &Path) -> bool {
 }
 
 impl DiskWatch {
+    /// Sem watcher: `poll()` sempre devolve vazio.
+    ///
+    /// Usado pelo modo conformance, onde observar o disco tornaria a execução
+    /// dependente de timing e do ambiente.
+    #[must_use]
+    pub fn disabled() -> Self {
+        Self {
+            _watcher: None,
+            receiver: None,
+            ignore_mtime: HashMap::new(),
+        }
+    }
+
     pub fn start(workspace: &Path) -> Self {
         let (sender, receiver) = mpsc::channel::<DiskChange>();
         let mut watcher =

@@ -28,6 +28,58 @@ pub enum LanguageId {
     Custom(&'static str),
 }
 
+/// Ceiling on how many custom language ids are kept alive.
+///
+/// `Custom` holds a `&'static str`, which requires leaking the string to obtain
+/// the lifetime. Leaking one id per unknown name would grow without bound; the
+/// intern table reduces that to one leak per *distinct* id, and the ceiling closes
+/// the pathological case where a caller feeds endless distinct names.
+const MAX_CUSTOM_LANGUAGES: usize = 256;
+
+/// A bounded intern table for custom language ids.
+///
+/// A type rather than a bare global so the ceiling is testable: a test that
+/// exhausts it can build its own table instead of emptying the shared one for
+/// every other test running in the same process.
+#[derive(Default)]
+struct InternTable {
+    names: std::collections::HashSet<&'static str>,
+}
+
+impl InternTable {
+    /// Interns an id, returning `None` at the ceiling.
+    ///
+    /// The returned reference is stable for the process, because the table owns it.
+    fn intern(&mut self, id: &str) -> Option<&'static str> {
+        if let Some(existing) = self.names.get(id) {
+            return Some(existing);
+        }
+        if self.names.len() >= MAX_CUSTOM_LANGUAGES {
+            return None;
+        }
+
+        let leaked: &'static str = Box::leak(id.to_string().into_boxed_str());
+        self.names.insert(leaked);
+        Some(leaked)
+    }
+}
+
+/// Interns a custom language id in the process-wide table.
+fn intern_custom(id: &str) -> Option<&'static str> {
+    use std::sync::{Mutex, OnceLock};
+
+    static INTERNED: OnceLock<Mutex<InternTable>> = OnceLock::new();
+
+    INTERNED
+        .get_or_init(|| Mutex::new(InternTable::default()))
+        .lock()
+        // A poisoned table means another thread panicked while holding it. The
+        // set is still consistent, and refusing to intern would silently cost
+        // every caller its language, so it is used as-is.
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .intern(id)
+}
+
 impl LanguageId {
     #[must_use]
     pub fn from_str_or_custom(s: &str) -> Self {
@@ -50,10 +102,13 @@ impl LanguageId {
             "ori" | "orl" => Self::Ori,
             "d" => Self::D,
             "lua" => Self::Lua,
-            other => {
-                let leaked: &'static str = Box::leak(other.to_string().into_boxed_str());
-                Self::Custom(leaked)
-            }
+            other => match intern_custom(other) {
+                Some(id) => Self::Custom(id),
+                // Past the ceiling an unknown id degrades to plain rather than
+                // leaking without bound. Reaching this needs hundreds of
+                // *distinct* unknown ids, so it costs nothing real.
+                None => Self::Plain,
+            },
         }
     }
 
@@ -201,6 +256,56 @@ pub fn detect_language(path: Option<&Path>) -> LanguageId {
 
 #[cfg(test)]
 mod tests {
+    use super::{intern_custom, LanguageId, MAX_CUSTOM_LANGUAGES};
+
+    #[test]
+    fn unknown_ids_intern_to_one_allocation() {
+        let first = intern_custom("linguagem-exotica").expect("dentro do teto");
+        let second = intern_custom("linguagem-exotica").expect("dentro do teto");
+
+        // O mesmo ponteiro: o segundo pedido não aloca nada.
+        assert!(std::ptr::eq(first, second));
+    }
+
+    #[test]
+    fn unknown_ids_become_custom_languages() {
+        assert_eq!(
+            LanguageId::from_str_or_custom("linguagem-exotica"),
+            LanguageId::Custom("linguagem-exotica")
+        );
+    }
+
+    #[test]
+    fn interning_stops_at_the_ceiling() {
+        // Uma tabela própria: encher a global esvaziaria o teto para os testes
+        // vizinhos, que rodam no mesmo processo.
+        let mut table = super::InternTable::default();
+        for i in 0..MAX_CUSTOM_LANGUAGES {
+            let name = format!("sintetica-{i}");
+            assert!(
+                table.intern(&name).is_some(),
+                "cabem {MAX_CUSTOM_LANGUAGES}"
+            );
+        }
+
+        assert_eq!(table.intern("mais-uma"), None);
+    }
+
+    #[test]
+    fn interning_reuses_the_same_allocation() {
+        let mut table = super::InternTable::default();
+        let first = table.intern("repetida").expect("primeira vez");
+        let second = table.intern("repetida").expect("segunda vez");
+
+        assert!(std::ptr::eq(first, second));
+    }
+
+    #[test]
+    fn known_ids_never_touch_the_intern_table() {
+        assert_eq!(LanguageId::from_str_or_custom("rust"), LanguageId::Rust);
+        assert_eq!(LanguageId::from_str_or_custom("  RUST  "), LanguageId::Rust);
+    }
+
     use super::*;
 
     #[test]

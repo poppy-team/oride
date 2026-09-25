@@ -12,6 +12,12 @@ mouse = false
 [editor]
 tab_size = 4
 insert_spaces = true
+format_on_save = false
+use_editorconfig = true
+completion_auto = true
+completion_min_chars = 2
+# Modal (Vim / Neovim): Normal, Insert, Visual, VisualLine e linha de comando.
+modal_mode = false
 
 # Cores: nomes (white, darkgray, reset, …) ou #RRGGBB
 [ui]
@@ -82,14 +88,6 @@ gutter_width = 5
 "ctrl+pagedown" = "next_tab"
 "alt+left" = "prev_tab"
 "alt+right" = "next_tab"
-
-[editor]
-tab_size = 4
-insert_spaces = true
-format_on_save = false
-use_editorconfig = true
-completion_auto = true
-completion_min_chars = 2
 
 [tree]
 width = 28

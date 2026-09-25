@@ -1637,9 +1637,7 @@ impl App {
         if task.run_in == "background" {
             let ws = self.workspace.clone();
             std::thread::spawn(move || {
-                let _ = std::process::Command::new("sh")
-                    .arg("-c")
-                    .arg(&resolved_cmd)
+                let _ = oride_osutil::shell_command(&resolved_cmd)
                     .current_dir(ws)
                     .output();
             });

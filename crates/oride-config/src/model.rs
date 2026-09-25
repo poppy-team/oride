@@ -19,7 +19,11 @@ pub struct Config {
     pub terminal: TerminalConfig,
     pub lsp: LspConfig,
     pub markdown: MarkdownConfig,
-    /// Captura de mouse (clique, drag, scroll). **Default: on**.
+    /// Captura de mouse (clique, drag, scroll). **Default: off**.
+    ///
+    /// Desligado porque o terminal continua sendo do usuário: com o mouse
+    /// capturado, selecionar e copiar nativo deixam de funcionar. Teclado é o
+    /// caminho completo; o mouse é aceleração opcional.
     pub mouse: bool,
     /// Chord string → action id (`"ctrl+s" = "save"`).
     pub keys: BTreeMap<String, String>,
@@ -42,7 +46,7 @@ impl Default for Config {
             terminal: TerminalConfig::default(),
             lsp: LspConfig::default(),
             markdown: MarkdownConfig::default(),
-            mouse: true,
+            mouse: false,
             keys: default_key_bindings(),
             languages: Vec::new(),
             locale: "pt-BR".into(),

@@ -1,10 +1,29 @@
 //! Sessão leve: workspace + lista de arquivos abertos.
 
 use std::fs;
-use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
+
+/// FNV-1a 64-bit. Offset basis e prime do padrão.
+const FNV_OFFSET_BASIS: u64 = 0xcbf2_9ce4_8422_2325;
+const FNV_PRIME: u64 = 0x0000_0100_0000_01b3;
+
+/// Digest determinístico de um caminho canônico.
+///
+/// Não usamos `DefaultHasher`: ele é explicitamente instável entre versões do
+/// Rust, e uma sessão salva por uma versão deixava de ser encontrada pela
+/// seguinte — o usuário via a sessão "desaparecer" depois de um update.
+/// FNV-1a é estável, não tem dependência e é reproduzível em qualquer
+/// linguagem: o porte em Go precisa produzir exatamente este mesmo digest.
+fn workspace_digest(canonical_workspace: &Path) -> u64 {
+    let mut hash = FNV_OFFSET_BASIS;
+    for byte in canonical_workspace.to_string_lossy().as_bytes() {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(FNV_PRIME);
+    }
+    hash
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SplitSession {
@@ -43,10 +62,7 @@ impl Session {
         }
 
         let base_directory = dirs::data_local_dir()?.join("oride").join("sessions");
-        let mut hasher = DefaultHasher::new();
-        canonical_workspace.hash(&mut hasher);
-        let hash_value = hasher.finish();
-        let filename = format!("{:016x}.toml", hash_value);
+        let filename = format!("{:016x}.toml", workspace_digest(&canonical_workspace));
         Some(base_directory.join(filename))
     }
 
@@ -130,5 +146,33 @@ mod tests {
         let path_alpha = Session::path_for_workspace(Path::new("/tmp/test_dir_alpha"));
         let path_beta = Session::path_for_workspace(Path::new("/tmp/test_dir_beta"));
         assert_ne!(path_alpha, path_beta);
+    }
+
+    #[test]
+    fn workspace_digest_is_pinned_for_cross_language_parity() {
+        // Golden: a implementação Go precisa produzir exatamente estes digests
+        // para os mesmos caminhos. Mudar o algoritmo é uma mudança de formato de
+        // arquivo — invalida toda sessão já salva, então quebrar este teste é
+        // intencional e precisa de migração.
+        assert_eq!(
+            workspace_digest(Path::new("/tmp/oride")),
+            0xD667_B877_1CBE_1AA3
+        );
+        // Entrada vazia devolve o offset basis: prova que o algoritmo é FNV-1a
+        // puro e não alguma variante parecida.
+        assert_eq!(workspace_digest(Path::new("")), 0xCBF2_9CE4_8422_2325);
+        assert_eq!(
+            workspace_digest(Path::new("/tmp/test_dir_alpha")),
+            0x980F_B79D_966D_0797
+        );
+    }
+
+    #[test]
+    fn workspace_digest_distinguishes_paths_and_is_stable() {
+        let first = workspace_digest(Path::new("/tmp/projeto-a"));
+        let second = workspace_digest(Path::new("/tmp/projeto-b"));
+        assert_ne!(first, second);
+        // Estabilidade: o mesmo caminho sempre produz o mesmo digest.
+        assert_eq!(first, workspace_digest(Path::new("/tmp/projeto-a")));
     }
 }

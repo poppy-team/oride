@@ -99,7 +99,7 @@ cargo build --release
 - **File Browser (`Ctrl+O` / `Ctrl+P`):** Cyan highlight indicates selection · `↑↓` navigate · `Enter` opens/enters · typing filters items.
 - **Project Tree:** `↑↓` or `jk` navigate · `Enter` opens file or expands folder · `r` rename · `d` delete · `y`/`c` copy path · `Tab`/`Esc` returns focus to editor.
 - **PTY Terminal:** Full interactive shell; `Ctrl+C` sends interrupt to shell when terminal is focused; `Esc` returns to editor.
-- **Vim Modal Mode:** Type `:normal` in command prompt to enable modal navigation (`h`, `j`, `k`, `l`, `w`, `b`, `gg`, `G`, `x`, `u`, `:w`, `:q`, `:tasks`, `:health`).
+- **Vim Modal Mode:** Set `modal_mode = true` in your config (or toggle it via Command Palette → *Toggle modal mode*) to enable modal navigation (`h`, `j`, `k`, `l`, `w`, `b`, `gg`, `G`, `x`, `u`, `:w`, `:q`, `:tasks`, `:health`).
 
 ### Configuration
 

@@ -432,7 +432,7 @@ mod tests {
         let shell = if std::path::Path::new("/usr/bin/zsh").exists() {
             Some("/usr/bin/zsh")
         } else {
-            Some("/bin/sh")
+            Some(oride_osutil::default_shell())
         };
         let mut term = super::EmbeddedTerminal::spawn(std::path::Path::new("."), 80, 24, shell)
             .expect("spawn terminal");

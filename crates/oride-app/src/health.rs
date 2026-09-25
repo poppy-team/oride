@@ -25,15 +25,7 @@ pub struct HealthReport {
 /// Procura um executável no `$PATH` do sistema operacional.
 #[must_use]
 pub fn find_in_path(cmd: &str) -> Option<PathBuf> {
-    if let Ok(path_var) = std::env::var("PATH") {
-        for dir in std::env::split_paths(&path_var) {
-            let candidate = dir.join(cmd);
-            if candidate.is_file() {
-                return Some(candidate);
-            }
-        }
-    }
-    None
+    oride_osutil::find_in_path(cmd)
 }
 
 /// Realiza uma varredura preventiva de saúde do ambiente.

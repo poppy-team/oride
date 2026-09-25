@@ -65,7 +65,7 @@ By default, Oride operates as an intuitive modern text editor:
 ### Modal Mode (Vim Style)
 For developers who prefer home-row navigation without leaving the keyboard:
 
-1. **Activation:** Type `:normal` in the command prompt or set `modal_editing = true` in your `config.toml`.
+1. **Activation:** Set `modal_mode = true` in your `config.toml`, or open the Command Palette (`Ctrl+Shift+P`) and choose **Toggle modal mode (Vim / CUA)** to switch without leaving the editor.
 2. **Available Modes:**
    - **NORMAL:** Default mode for navigation, deletions, and commands. Cursor is drawn as a solid block.
    - **INSERT (`i`, `a`, `o`, `I`, `A`, `O`):** Direct text insertion. Press `Esc` to return to NORMAL mode.
@@ -90,7 +90,11 @@ For developers who prefer home-row navigation without leaving the keyboard:
    - `:tasks` — Open the integrated Task Runner picker.
    - `:health` — Open the system and LSP health diagnostics modal.
    - `:theme <name>` — Switch color theme (e.g., `:theme tokyo-night`).
-   - `:help` — Display the keybindings help screen.
+   - `:lang <code>` — Switch the interface language (e.g., `:lang en-US`).
+   - `:noh` — Clear the current search selection.
+   - `:run <task>` — Run a task runner entry by name.
+
+   To see every binding, use `F1`, `Ctrl+G` or `Ctrl+Shift+/` — there is no `:help`.
 
 ---
 
@@ -139,7 +143,7 @@ description = "Compile the workspace in debug mode"
 
 [tasks.test]
 label = "Cargo: Test Active Module"
-command = "cargo test ${file_name}"
+command = "cargo test $FILE_NAME"
 description = "Run tests for currently open module"
 
 [tasks.run]
@@ -152,10 +156,13 @@ command = "cargo fmt --all"
 ```
 
 ### Magic Variables:
-- `${file}`: Full absolute path of active file.
-- `${file_name}`: File name with extension (e.g., `main.rs`).
-- `${dir}`: Parent directory of active file.
-- `${workspace_root}`: Root folder of open workspace.
+- `$FILE`: Full absolute path of active file.
+- `$FILE_NAME`: File name with extension (e.g., `main.rs`).
+- `$FILE_STEM`: File name without extension (e.g., `main`).
+- `$FILE_DIR`: Parent directory of active file.
+- `$WORKSPACE`: Root folder of open workspace.
+- `$LINE`: Current cursor line (1-based).
+- `$COL`: Current cursor column (1-based).
 
 ### Running Tasks:
 Type `:tasks` in the command prompt or open the Command Palette (`Ctrl+Shift+P`) and choose *Run Task*.
@@ -209,7 +216,7 @@ Configuration merges cleanly across three layers:
 Oride supports dynamic UI localization. In your `config.toml`:
 
 ```toml
-language = "en" # or "pt-BR", "es", etc.
+locale = "en-US" # or "pt-BR"
 ```
 
 Custom translations can be added to `~/.config/oride/locales/<locale>.toml` without recompilation.

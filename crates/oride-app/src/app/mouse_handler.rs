@@ -483,21 +483,7 @@ impl App {
 
 /// Abre uma URL ou caminho no navegador/aplicativo padrão do sistema operacional de forma desacoplada.
 pub fn open_url_or_path(target: &str) -> std::io::Result<()> {
-    #[cfg(target_os = "macos")]
-    let mut cmd = std::process::Command::new("open");
-    #[cfg(target_os = "windows")]
-    let mut cmd = {
-        let mut c = std::process::Command::new("cmd");
-        c.args(["/C", "start", ""]);
-        c
-    };
-    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-    let mut cmd = std::process::Command::new("xdg-open");
-
-    cmd.arg(target);
-    cmd.stdin(std::process::Stdio::null());
-    cmd.stdout(std::process::Stdio::null());
-    cmd.stderr(std::process::Stdio::null());
-    cmd.spawn()?;
-    Ok(())
+    // A escolha do abridor por plataforma vive em `oride-osutil`, para não haver
+    // duas listas de sistemas operacionais para manter em sincronia.
+    oride_osutil::open_target(target)
 }

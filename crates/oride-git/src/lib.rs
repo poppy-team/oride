@@ -124,7 +124,12 @@ pub fn diff_file(cwd: &Path, file: &Path) -> Option<String> {
     let mut text = String::from_utf8_lossy(&output.stdout).to_string();
     if text.trim().is_empty() {
         let out2 = Command::new("git")
-            .args(["diff", "--no-index", "/dev/null", &rel.to_string_lossy()])
+            .args([
+                "diff",
+                "--no-index",
+                oride_osutil::null_device(),
+                &rel.to_string_lossy(),
+            ])
             .current_dir(cwd)
             .output()
             .ok()?;

@@ -99,7 +99,7 @@ cargo build --release
 - **Navegador de Arquivos (`Ctrl+O` / `Ctrl+P`):** Destaque em ciano indica a seleção · `↑↓` navegam · `Enter` entra/abre · digitação filtra a lista.
 - **Árvore de Projeto:** `↑↓` ou `jk` navegam · `Enter` abre/expande pasta · `r` renomeia · `d` deleta · `y`/`c` copia o caminho · `Tab`/`Esc` retorna o foco ao editor.
 - **Terminal PTY:** Shell interativo completo; `Ctrl+C` é enviado ao shell quando o terminal está focado; `Esc` retorna ao editor.
-- **Modo Modal Vim:** Digite `:normal` para habilitar navegação modal (`h`, `j`, `k`, `l`, `w`, `b`, `gg`, `G`, `x`, `u`, `:w`, `:q`, `:tasks`, `:health`).
+- **Modo Modal Vim:** Defina `modal_mode = true` na config (ou alterne pela Command Palette → *Toggle modal mode*) para habilitar navegação modal (`h`, `j`, `k`, `l`, `w`, `b`, `gg`, `G`, `x`, `u`, `:w`, `:q`, `:tasks`, `:health`).
 
 ### Configuração
 

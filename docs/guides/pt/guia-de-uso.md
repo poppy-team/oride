@@ -65,7 +65,7 @@ Por padrão, o editor funciona de forma intuitiva como a maioria dos editores de
 ### Modo Modal (Estilo Vim)
 Para desenvolvedores habituados à edição modal sem tirar as mãos da linha base:
 
-1. **Ativação:** Digite `:normal` no prompt de comando ou adicione `modal_editing = true` no seu `config.toml`.
+1. **Ativação:** Defina `modal_mode = true` no seu `config.toml`, ou abra a Command Palette (`Ctrl+Shift+P`) e escolha **Toggle modal mode (Vim / CUA)** para alternar sem sair do editor.
 2. **Modos Disponíveis:**
    - **NORMAL:** Modo padrão para navegação e operações em texto. O cursor é exibido em bloco.
    - **INSERT (`i`, `a`, `o`, `I`, `A`, `O`):** Modo de inserção direta de texto. Pressione `Esc` para retornar ao modo NORMAL.
@@ -90,7 +90,11 @@ Para desenvolvedores habituados à edição modal sem tirar as mãos da linha ba
    - `:tasks` — Abre a janela do Task Runner.
    - `:health` — Abre o painel de diagnóstico de saúde do sistema e LSPs.
    - `:theme <nome>` — Altera o tema visual (ex: `:theme tokyo-night`).
-   - `:help` — Exibe a tela de ajuda com todos os atalhos.
+   - `:lang <código>` — Troca o idioma da interface (ex: `:lang en-US`).
+   - `:noh` — Limpa a seleção da busca atual.
+   - `:run <tarefa>` — Executa uma tarefa do runner pelo nome.
+
+   Para ver todos os atalhos, use `F1`, `Ctrl+G` ou `Ctrl+Shift+/` — não há `:help`.
 
 ---
 
@@ -139,7 +143,7 @@ description = "Compila o workspace em modo debug"
 
 [tasks.test]
 label = "Cargo: Test Active Module"
-command = "cargo test ${file_name}"
+command = "cargo test $FILE_NAME"
 description = "Executa os testes do módulo aberto"
 
 [tasks.run]
@@ -152,10 +156,13 @@ command = "cargo fmt --all"
 ```
 
 ### Variáveis Mágicas Disponíveis:
-- `${file}`: Caminho completo absoluto do arquivo ativo.
-- `${file_name}`: Nome do arquivo ativo (ex: `main.rs`).
-- `${dir}`: Diretório pai do arquivo ativo.
-- `${workspace_root}`: Raiz do workspace/projeto aberto.
+- `$FILE`: Caminho completo absoluto do arquivo ativo.
+- `$FILE_NAME`: Nome do arquivo ativo (ex: `main.rs`).
+- `$FILE_STEM`: Nome do arquivo sem extensão (ex: `main`).
+- `$FILE_DIR`: Diretório pai do arquivo ativo.
+- `$WORKSPACE`: Raiz do workspace/projeto aberto.
+- `$LINE`: Linha atual do cursor (1-based).
+- `$COL`: Coluna atual do cursor (1-based).
 
 ### Execução:
 Digite `:tasks` na linha de comando ou pressione `Ctrl+Shift+P` para abrir a paleta e selecionar a tarefa desejada.
@@ -208,7 +215,7 @@ O Oride carrega a configuração mesclando em camadas:
 O editor suporta tradução dinâmica de interface. No seu `config.toml`:
 
 ```toml
-language = "pt-BR" # ou "en", "es", etc.
+locale = "pt-BR" # ou "en-US"
 ```
 
 Novos idiomas podem ser adicionados criando arquivos TOML em `~/.config/oride/locales/<código>.toml` sem recompilar o executável.

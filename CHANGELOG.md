@@ -24,7 +24,7 @@ Release focada em linguagens first-class, visualização rica e mídia no Markdo
 - **Operações de Arquivos e Git SCM (`G1`):** Stage (`s`), unstage (`u`) e commit interativo (`c`) no painel SCM; renomear (`r`), deletar (`d`) e copiar caminho (`y`/`c`) na árvore de arquivos
 - **Busca e Substituição no Projeto:** `replace_in_project` integrado com recarregamento em tempo real dos buffers abertos
 - **Redimensionamento Dinâmico:** Arrastar divisores de árvore e divisões do editor via mouse e atalhos na palette
-- Grammars tree-sitter oficiais para Rust, Python, TypeScript/TSX e Ruby; fallback léxico contido para Nim, Ori, D e Lua
+- Grammars tree-sitter para Rust, C, Bash, Markdown e OriScript; as demais linguagens (Python, TypeScript/TSX, Ruby, Nim, Ori, D, Lua, HTML, CSS, JavaScript) usam o realce lexical embutido — ou uma grammar dinâmica carregada em runtime, quando presente
 
 ### Removed
 

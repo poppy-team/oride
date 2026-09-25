@@ -1,0 +1,9 @@
+[package]
+name = "oride-osutil"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Platform seams: shell, null device, opening targets, PATH lookup"
+rust-version.workspace = true
+
+[dependencies]

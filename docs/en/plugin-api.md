@@ -1,8 +1,18 @@
 # Plugin Architecture & Extensibility API
 
-Oride maintains a strict **anti-bloat** philosophy ([roadmap alpha.6](planning/alpha6-roadmap.md)). Extensions in 0.2.x are modular Rust traits registered with `PluginHost` during editor initialization.
+Crate: **`oride-plugin`**. There are **two** distinct mechanisms, and they are in
+different states — this section exists so the two are not confused.
 
-Crate: **`oride-plugin`**.
+| Mechanism | How the extension is written | State |
+|-----------|------------------------------|-------|
+| **Built-in** | a `Plugin` trait in Rust, compiled into the binary | **wired** — registered with `PluginHost` at boot |
+| **External** | a `plugin.toml` declaring an executable | **implemented, not wired** — no application path calls `discover_external_plugins` |
+
+Neither loads third-party code into the process: there is no `Lua`, `WASM` or
+`dlopen`. An external plugin is an **executable** Oride invokes, which keeps the
+process boundary intact.
+
+There is also no stable versioned API for third parties yet.
 
 ---
 
@@ -67,6 +77,45 @@ pub trait Plugin: Send + Sync {
 The Command Palette (`Ctrl+Shift+P`) dynamically presents built-in editor actions alongside registered plugin commands. Selecting a command executes `host.run_command(id, &mut ctx)`.
 
 ---
+
+## External plugins (implemented, not wired)
+
+An external plugin is a directory containing a `plugin.toml`:
+
+```toml
+[plugin]
+name = "my-plugin"
+version = "0.1.0"
+description = "example"
+
+[[commands]]
+id = "greet"
+label = "Plugin: greet"
+executable = "echo"
+args = ["hello"]
+
+[hooks.on_save]
+executable = "echo"
+args = ["saved"]
+```
+
+Discovery: `discover_external_plugins(&[dir])` looks in `dir/plugins/` and in `dir`
+itself, loading every `plugin.toml` it finds. `ExternalPlugin::load_file` parses it
+and keeps the plugin's root directory.
+
+**Actual state:** `oride-plugin` re-exports both functions and the application
+never calls them. An external plugin declared today runs nothing — the capability
+exists and is not wired. This is a known divergence between the code and the
+product, not an available feature.
+
+The executable and its arguments are passed **separately**, with no shell in
+between, so a manifest cannot inject commands.
+
+## Why an executable, and not Lua/WASM
+
+An in-process script host would give a plugin access to the editor's memory.
+Invoking an executable keeps the plugin isolated by process, and it is the same
+seam the harness client phase needs. `Lua`/`WASM` remain out of scope.
 
 ## Verification
 

@@ -14,6 +14,7 @@ pub use language::{detect_language, LanguageId};
 pub use markdown::{continue_list_on_enter, list_prefix};
 pub use md_preview::{
     detect_terminal_graphics, format_file_size, inline_segments, inspect_image_file,
-    render_preview_lines, render_preview_lines_in, render_preview_lines_with_config, ImageMetadata,
-    PreviewLine, PreviewLink, PreviewStyle, TerminalGraphicsCapability,
+    render_preview_lines, render_preview_lines_in, render_preview_lines_with_config,
+    render_preview_lines_with_graphics, ImageMetadata, PreviewLine, PreviewLink, PreviewStyle,
+    TerminalEnvironment, TerminalGraphicsCapability,
 };
