@@ -76,9 +76,12 @@ func TestRowReservesTheCursorColumnWhetherSelectedOrNot(t *testing.T) {
 	if layout.Width(selected) != 30 || layout.Width(plain) != 30 {
 		t.Fatalf("larguras = %d e %d", layout.Width(selected), layout.Width(plain))
 	}
-	// O nome começa na mesma coluna nos dois casos.
-	if indexOf(selected, "arquivo") != indexOf(plain, "arquivo") {
-		t.Errorf("o texto mudou de coluna: %d vs %d", indexOf(selected, "arquivo"), indexOf(plain, "arquivo"))
+	// A coluna em CÉLULAS, não em bytes: o cursor é um caractere de vários bytes,
+	// e comparar índices de byte acusa uma diferença que não existe na tela.
+	selectedColumn := cellColumn(selected, "arquivo")
+	plainColumn := cellColumn(plain, "arquivo")
+	if selectedColumn != plainColumn {
+		t.Errorf("o texto mudou de coluna: %d vs %d", selectedColumn, plainColumn)
 	}
 	if indexOf(selected, Mark) < 0 {
 		t.Error("a linha selecionada não traz o cursor")
@@ -88,9 +91,21 @@ func TestRowReservesTheCursorColumnWhetherSelectedOrNot(t *testing.T) {
 	}
 }
 
+// cellColumn is the cell offset where a substring starts, or -1.
+//
+// The layout measures in cells and Go indexes in bytes, and mixing the two is how
+// a width bug hides behind a passing test.
+func cellColumn(text, needle string) int {
+	index := indexOf(text, needle)
+	if index < 0 {
+		return -1
+	}
+	return layout.Width(text[:index])
+}
+
 func TestRowIndentsByDepth(t *testing.T) {
-	shallow := indexOf(Row("x.go", 0, false, 30), "x.go")
-	deep := indexOf(Row("x.go", 2, false, 30), "x.go")
+	shallow := cellColumn(Row("x.go", 0, false, 30), "x.go")
+	deep := cellColumn(Row("x.go", 2, false, 30), "x.go")
 
 	if deep <= shallow {
 		t.Errorf("profundidade 2 não recuou: %d vs %d", deep, shallow)
