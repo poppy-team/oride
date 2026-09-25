@@ -64,6 +64,12 @@ type App struct {
 	Tree *fs.Tree
 	// Find is the in-buffer search state.
 	Find search.State
+	// Overlay names what floats above the surfaces, in the oracle's vocabulary.
+	//
+	// It is model state, not presentation: the Rust dumps it, so which overlay is
+	// open is observable behaviour — and a conformance case corrected an earlier
+	// version of this file that treated opening find as a TUI concern.
+	Overlay string
 }
 
 // WorkspacePlaceholder stands in for the workspace path in a dump.
@@ -78,6 +84,7 @@ func New(store *editor.Store, cfg config.Config, keys *keymap.Map) *App {
 		Focus:    FocusEditor,
 		ShowTree: true,
 		Find:     search.NewState(),
+		Overlay:  "none",
 	}
 }
 
@@ -342,7 +349,7 @@ func (a *App) state() (Dump, error) {
 	out := Dump{
 		Schema:           SchemaVersion,
 		Focus:            string(a.Focus),
-		Overlay:          OverlayDump{Kind: "none"},
+		Overlay:          OverlayDump{Kind: a.Overlay},
 		Tabs:             []TabDump{},
 		DirtyCount:       a.Store.DirtyCount(),
 		Find:             a.findDump(),

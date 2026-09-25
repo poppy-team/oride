@@ -39,8 +39,23 @@ func TestRegistryKeepsEveryActionThatWasDispatched(t *testing.T) {
 			t.Errorf("%s perdeu o registro", id)
 		}
 	}
-	if got := CommandCount(); got != len(dispatchedBefore) {
-		t.Errorf("a tabela tem %d ações e a lista de referência tem %d", got, len(dispatchedBefore))
+	// Growth is the point, so the guard is a lower bound rather than an equality.
+	// An earlier version asserted exact equality and failed the moment search
+	// commands were added — the guard was over-specified, not the table wrong.
+	if got := CommandCount(); got < len(dispatchedBefore) {
+		t.Errorf("a tabela encolheu: %d ações, já teve %d", got, len(dispatchedBefore))
+	}
+}
+
+// TestTheSearchCommandsAreRegistered: the same failure the guard above exists for,
+// applied to the actions added after it was written.
+func TestTheSearchCommandsAreRegistered(t *testing.T) {
+	for _, id := range []action.Action{
+		action.Find, action.FindNext, action.FindPrev, action.Replace,
+	} {
+		if _, present := commands[id]; !present {
+			t.Errorf("%s perdeu o registro", id)
+		}
 	}
 }
 

@@ -1,0 +1,17 @@
+{
+  "description": "find command: moving through matches with find_next and find_prev, and replacing the current one",
+  "files": [
+    { "path": "notas.txt", "content": "alfa beta\ngama alfa\nbeta alfa\n" }
+  ],
+  "open": "notas.txt",
+  "steps": [
+    { "kind": "search", "query": "alfa", "ignore_accents": true },
+    { "kind": "action", "action": "find_next" },
+    { "kind": "action", "action": "find_next" },
+    { "kind": "action", "action": "find_prev" },
+    { "kind": "action", "action": "find" },
+    { "kind": "search", "query": "alfa", "replace": "ALFA", "ignore_accents": true },
+    { "kind": "action", "action": "find_next" },
+    { "kind": "action", "action": "replace" }
+  ]
+}

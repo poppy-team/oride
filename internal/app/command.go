@@ -54,6 +54,7 @@ func buildCommands() map[action.Action]Handler {
 		{"movimento", movementCommands()},
 		{"seleção", selectionCommands()},
 		{"visão", viewCommands()},
+		{"busca", searchCommands()},
 	} {
 		for id, handler := range group.commands {
 			if _, duplicate := merged[id]; duplicate {
