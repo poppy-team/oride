@@ -7,6 +7,35 @@
 - Context methodology: **Lean Progressive Context (LPC)**
 - Last updated: `2026-09-25T00:00:00Z`
 
+## M3 — Shell TUI (em andamento)
+
+### M3.0 — Fundamentos verificáveis · **completo**
+
+- ✅ **`internal/architecture`** — o contrato de arquitetura como teste. Sete
+  regras (R1–R7) extraídas de `docs/architecture/clean-code-contract.md` §3:
+  ausência de ciclos, não importar o consumidor, superfícies de `tui` não
+  importarem o modelo, folhas puras permanecerem folhas, nomes de pasta
+  proibidos, README por pasta, e o harness não virar dependência de produto.
+  Cada regra é dado (`Rule`), então acrescentar uma não significa escrever outro
+  teste. **Contraprova:** `TestRulesCanFail` prova que cada regra sabe falhar e
+  que sabe silenciar — uma regra que nunca falha não mede nada.
+  O R6 obrigou **20 READMEs** que o contrato exigia e o repositório não tinha.
+- ✅ **`internal/docdrift`** — contratos de documentação contra o código.
+  `docs/ui-ux/keymap.md` é **gerado** das 98 bindings e comparado nos dois
+  sentidos: tecla no código e fora do doc, ou no doc e fora do código, falha
+  nomeando a diferença.
+- ✅ **`docs/ui-ux/`** — o contrato que o gate do M3 exige e que não existia:
+  `keymap.md` (canônico, gerado), `focus-graph.md`, `states.md`, `layout.md`
+  (classes de largura), `degradation.md` (cor, mouse, keyboard enhancements) e a
+  projeção EN apontando para a fonte canônica em vez de duplicá-la.
+- ✅ **`docs/architecture/overview.md`** (PT + EN) corrigido: descrevia `Ropey` e
+  `Ratatui`/`Crossterm`, nenhum dos três usado pelo produto em Go.
+
+### M3.1 — Decomposição do modelo · próximo
+
+`App` (63 campos planos) vira composição de sub-estados coesos; o `switch` de
+`Apply` vira registry por domínio; `StateDump` e `SchemaVersion` **não mudam**.
+
 ## Onde o projeto está
 
 A implementação alvo é **Go** (`cmd/`, `internal/`). A implementação **Rust**
