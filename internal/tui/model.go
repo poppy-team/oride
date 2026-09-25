@@ -18,10 +18,12 @@ import (
 
 	"github.com/ori-team/oride/internal/action"
 	"github.com/ori-team/oride/internal/app"
+	"github.com/ori-team/oride/internal/buffer"
 	"github.com/ori-team/oride/internal/config"
 	"github.com/ori-team/oride/internal/editor"
 	"github.com/ori-team/oride/internal/i18n"
 	"github.com/ori-team/oride/internal/keymap"
+	"github.com/ori-team/oride/internal/search"
 	"github.com/ori-team/oride/internal/tui/component"
 	"github.com/ori-team/oride/internal/tui/editorview"
 	"github.com/ori-team/oride/internal/tui/findbar"
@@ -430,6 +432,7 @@ func (m Model) editorView(regions layout.Regions) editorview.View {
 		view.HasCaret = true
 	}
 	view.Selection = selectionOf(document)
+	view.Matches, view.CurrentMatch = matchesOf(document, m.application.Find)
 	view.Lines, view.Offset = visibleLines(document, regions.Editor.Height, view.Caret.Line)
 	return view
 }
@@ -457,6 +460,43 @@ func selectionOf(document *editor.Document) editorview.Selection {
 		Start: editorview.Position{Line: start.Line, Column: start.Column},
 		End:   editorview.Position{Line: end.Line, Column: end.Column},
 	}
+}
+
+// matchesOf converts the search results into the coordinates the viewport paints
+// in.
+//
+// The search keeps byte offsets because that is the canonical index; the viewport
+// paints cells. The conversion happens here, once, at the boundary — and a match
+// that cannot be resolved is dropped rather than failing the frame, because a
+// stale offset is a normal consequence of editing while a search is open.
+func matchesOf(document *editor.Document, found search.State) ([]editorview.Match, int) {
+	if len(found.Matches) == 0 {
+		return nil, -1
+	}
+
+	matches := make([]editorview.Match, 0, len(found.Matches))
+	for _, match := range found.Matches {
+		start, startErr := document.Buffer().ByteToCaret(buffer.Offset(match.Start))
+		end, endErr := document.Buffer().ByteToCaret(buffer.Offset(match.End))
+		if startErr != nil || endErr != nil {
+			continue
+		}
+		matches = append(matches, editorview.Match{
+			Start: editorview.Position{Line: start.Line, Column: start.Column},
+			End:   editorview.Position{Line: end.Line, Column: end.Column},
+		})
+	}
+
+	// The index has to be remapped: dropping a match shifts everything after it,
+	// and marking the wrong result as current is worse than marking none.
+	current := -1
+	if found.Current >= 0 && found.Current < len(found.Matches) {
+		current = found.Current
+		if len(matches) != len(found.Matches) {
+			current = -1
+		}
+	}
+	return matches, current
 }
 
 // visibleLines extracts the rows the viewport can show.

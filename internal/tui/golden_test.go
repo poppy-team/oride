@@ -93,6 +93,18 @@ func frameCases() []frameCase {
 			m.application.Find.Query = "alfa"
 			m.application.Find.Replace = "ALFA"
 		}},
+		{name: "find-matches", width: 100, height: 24, arrange: func(m *Model) {
+			m.application.Store.OpenEmpty()
+			document, err := m.application.Store.Active()
+			if err == nil {
+				_ = document.InsertText("alfa beta\ngama alfa\nbeta alfa\n")
+			}
+			_ = m.application.Apply(action.Find)
+			m.application.Find.Query = "alfa"
+			m.application.Find.Recompute(documentText(m))
+			_ = m.application.Apply(action.FindNext)
+		}},
+
 		{name: "find-bar-invalid-regex", width: 100, height: 24, arrange: func(m *Model) {
 			m.application.Store.OpenEmpty()
 			_ = m.application.Apply(action.Find)
@@ -227,4 +239,13 @@ func lineAt(lines []string, index int) string {
 		return lines[index]
 	}
 	return ""
+}
+
+// documentText is the active buffer's text, for the cases that need to search it.
+func documentText(m *Model) string {
+	document, err := m.application.Store.Active()
+	if err != nil {
+		return ""
+	}
+	return document.Buffer().String()
 }

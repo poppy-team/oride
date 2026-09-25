@@ -3,6 +3,9 @@ package editorview
 
 import (
 	"strconv"
+	"strings"
+
+	"charm.land/lipgloss/v2"
 
 	"github.com/ori-team/oride/internal/tui/layout"
 	"github.com/ori-team/oride/internal/tui/theme"
@@ -14,19 +17,27 @@ import (
 // reach into the document, and a viewport does not need the whole file to draw
 // one screen.
 type View struct {
-	Lines     []string
-	Offset    int
-	Caret     Position
-	HasCaret  bool
-	Selection Selection
-	Gutter    bool
-	Focused   bool
+	Lines        []string
+	Offset       int
+	Caret        Position
+	HasCaret     bool
+	Selection    Selection
+	Matches      []Match
+	CurrentMatch int
+	Gutter       bool
+	Focused      bool
 	// Theme dims the gutter. The zero value renders plain.
 	Theme theme.Theme
 }
 
 // TotalLines is the document's length, which the gutter is sized from.
 func (v View) TotalLines() int { return v.Offset + len(v.Lines) }
+
+// Match is one search result, in document coordinates.
+type Match struct {
+	Start Position
+	End   Position
+}
 
 // Position is a caret location, zero-based, in document coordinates.
 type Position struct {
@@ -124,25 +135,118 @@ func renderLine(width, gutterWidth, index int, view View) string {
 	return layout.Pad(view.Theme.Gutter().Render(gutter), gutterWidth) + body
 }
 
-// paintSelection draws the line with the selected cells tinted.
+// cell is what a column of the line is, before any styling.
 //
-// Only the cells inside the selection are styled, and the row is padded outside
-// them: a background painted across the whole row would claim the selection
-// extends to the edge of the screen, which it does not.
+// A cell array rather than a chain of conditions per rune: selection and matches
+// overlap, and deciding the winner once per cell is what makes the precedence
+// explicit instead of an accident of the order the styles were applied.
+type cell int
+
+const (
+	cellPlain cell = iota
+	cellMatch
+	cellCurrentMatch
+	cellSelection
+)
+
+// paintSelection draws the line with its matches and selection tinted.
+//
+// Precedence is decided per cell: the selection wins over a match, because a
+// reader who has selected text is asking about the selection.
 func paintSelection(text string, line, width int, view View) string {
-	if view.Selection.Empty || view.Selection.isCollapsed() || !lineIsSelected(line, view.Selection) {
+	kinds := classify(text, line, width, view)
+	if !hasStyled(kinds) {
 		return layout.Pad(text, width)
 	}
 
-	start, end := selectedColumns(line, text, view.Selection)
+	var out strings.Builder
+	position := 0
+	for position < width {
+		kind := kinds[position]
+		run := 0
+		for position+run < width && kinds[position+run] == kind {
+			run++
+		}
 
-	before := layout.Slice(text, 0, start)
-	inside := layout.Slice(text, start, end-start)
-	after := layout.Slice(text, start+layout.Width(inside), width-start-layout.Width(inside))
+		segment := layout.Pad(layout.Slice(text, position, run), run)
+		out.WriteString(styleFor(kind, view.Theme).Render(segment))
+		position += run
+	}
+	return out.String()
+}
 
-	return layout.Pad(before, start) +
-		view.Theme.Selection().Render(layout.Pad(inside, end-start)) +
-		layout.Pad(after, width-end)
+// classify decides what each column of the line is.
+//
+// The array is in cells, matching the unit the layout measures in: a wide
+// character occupies two of them, and marking one of the two would tint half a
+// character.
+func classify(text string, line, width int, view View) []cell {
+	kinds := make([]cell, width)
+
+	for _, match := range matchesOn(line, view.Matches) {
+		mark(kinds, text, match.Start, match.End, cellMatch)
+	}
+	if view.CurrentMatch >= 0 && view.CurrentMatch < len(view.Matches) {
+		current := view.Matches[view.CurrentMatch]
+		if current.Start.Line <= line && line <= current.End.Line {
+			mark(kinds, text, current.Start, current.End, cellCurrentMatch)
+		}
+	}
+
+	if !view.Selection.Empty && !view.Selection.isCollapsed() && lineIsSelected(line, view.Selection) {
+		start, end := selectedColumns(line, text, view.Selection)
+		for column := start; column < end && column < width; column++ {
+			kinds[column] = cellSelection
+		}
+	}
+	return kinds
+}
+
+// matchesOn lists the matches touching a line.
+func matchesOn(line int, matches []Match) []Match {
+	out := make([]Match, 0, 2)
+	for _, match := range matches {
+		if match.Start.Line <= line && line <= match.End.Line {
+			out = append(out, match)
+		}
+	}
+	return out
+}
+
+// mark paints the columns of one range.
+func mark(kinds []cell, text string, start, end Position, kind cell) {
+	line := start.Line
+	from, to := selectedColumns(line, text, Selection{Start: start, End: end})
+	for column := from; column < to && column < len(kinds); column++ {
+		kinds[column] = kind
+	}
+}
+
+// hasStyled reports whether anything on the line needs styling.
+//
+// The plain path stays the common one: most lines of most frames have neither a
+// match nor a selection, and building styled output for them would cost escape
+// sequences on every row.
+func hasStyled(kinds []cell) bool {
+	for _, kind := range kinds {
+		if kind != cellPlain {
+			return true
+		}
+	}
+	return false
+}
+
+// styleFor maps a kind onto the style that draws it.
+func styleFor(kind cell, theme theme.Theme) lipgloss.Style {
+	switch kind {
+	case cellSelection:
+		return theme.Selection()
+	case cellCurrentMatch:
+		return theme.CurrentMatch()
+	case cellMatch:
+		return theme.Match()
+	}
+	return lipgloss.NewStyle()
 }
 
 // lineIsSelected reports whether the selection touches a line at all.
@@ -152,9 +256,9 @@ func lineIsSelected(line int, selection Selection) bool {
 
 // selectedColumns is the selected range on one line, in cells.
 //
-// The first and last lines of a selection are partial; every line between them is
-// selected whole. The end column is exclusive, and on the first line the range
-// starts where the selection starts.
+// The first and last lines of a range are partial; every line between them is
+// covered whole. A column past the end of the line would make the padding
+// arithmetic produce a negative width, so it is clamped.
 func selectedColumns(line int, text string, selection Selection) (start, end int) {
 	switch {
 	case line == selection.Start.Line && line == selection.End.Line:
@@ -167,8 +271,6 @@ func selectedColumns(line int, text string, selection Selection) (start, end int
 		start, end = 0, layout.Width(text)
 	}
 
-	// A column past the end of the line would make the padding arithmetic produce
-	// a negative width.
 	lineWidth := layout.Width(text)
 	start = min(max(0, start), lineWidth)
 	end = min(max(start, end), lineWidth)

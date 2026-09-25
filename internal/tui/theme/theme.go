@@ -70,6 +70,24 @@ func (t Theme) StatusDirty() lipgloss.Style {
 	return t.style(t.ui.StatusBG, "", t.ui.StatusDirty, true)
 }
 
+// Match marks a search result.
+//
+// The configuration has no search colours yet, so this borrows the cursor pair
+// rather than inventing a token: a provisional choice that is visible in one place
+// and will be replaced when the palette gains the role.
+func (t Theme) Match() lipgloss.Style {
+	return t.style(t.ui.CursorBG, "", t.ui.LineNumber, false)
+}
+
+// CurrentMatch marks the result the search is on.
+//
+// Distinguished from the others by weight and colour rather than by tint alone,
+// because "which one of these am I on" is the question the highlight exists to
+// answer.
+func (t Theme) CurrentMatch() lipgloss.Style {
+	return t.style(t.ui.CursorBG, "", t.ui.StatusDirty, true)
+}
+
 // Comment is the syntax role the surfaces use first.
 //
 // One role for now rather than twenty: the mapping from a chroma token to a role

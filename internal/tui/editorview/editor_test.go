@@ -244,3 +244,95 @@ func colourTheme() theme.Theme {
 	shipped := config.Default()
 	return theme.New(shipped.UI, shipped.Syntax, theme.TrueColor)
 }
+
+// TestMatchesArePainted: the search is only useful if the results are visible in
+// the text, not only counted in the bar.
+func TestMatchesArePainted(t *testing.T) {
+	view := View{
+		Lines:        []string{"alfa beta alfa"},
+		Matches:      []Match{{Start: Position{0, 0}, End: Position{0, 4}}, {Start: Position{0, 10}, End: Position{0, 14}}},
+		CurrentMatch: 1,
+		Theme:        colourTheme(),
+	}
+
+	row := Render(30, 1, view)[0]
+	if !strings.ContainsRune(row, 0x1b) {
+		t.Fatalf("nenhum casamento foi pintado: %q", row)
+	}
+	if got := layout.Width(row); got != 30 {
+		t.Errorf("linha com %d células", got)
+	}
+}
+
+// TestNoMatchesPaintsNothing: the plain path stays the common one, and a row with
+// no match must not carry escape sequences.
+func TestNoMatchesPaintsNothing(t *testing.T) {
+	view := View{Lines: []string{"texto simples"}, CurrentMatch: -1, Theme: colourTheme()}
+
+	if row := Render(30, 1, view)[0]; strings.ContainsRune(row, 0x1b) {
+		t.Errorf("linha sem casamento foi pintada: %q", row)
+	}
+}
+
+// TestTheSelectionWinsOverAMatch is the precedence rule, decided per cell rather
+// than by the order styles happen to be applied.
+func TestTheSelectionWinsOverAMatch(t *testing.T) {
+	view := View{
+		Lines:        []string{"alfa beta"},
+		Matches:      []Match{{Start: Position{0, 0}, End: Position{0, 4}}},
+		CurrentMatch: 0,
+		Selection:    selection(0, 0, 0, 4),
+		Theme:        colourTheme(),
+	}
+
+	// O resultado é o da seleção, não o do casamento: comparar com a mesma linha
+	// sem seleção prova que o estilo mudou.
+	withSelection := Render(30, 1, view)[0]
+
+	view.Selection = Selection{Empty: true}
+	withoutSelection := Render(30, 1, view)[0]
+
+	if withSelection == withoutSelection {
+		t.Error("a seleção não teve precedência sobre o casamento")
+	}
+	if got := layout.Width(withSelection); got != 30 {
+		t.Errorf("linha com %d células", got)
+	}
+}
+
+// TestMatchesSurviveWideCharacters: the marks are in cells, so a match over a wide
+// character must not tint half of it.
+func TestMatchesSurviveWideCharacters(t *testing.T) {
+	view := View{
+		Lines:        []string{"日本語の"},
+		Matches:      []Match{{Start: Position{0, 2}, End: Position{0, 6}}},
+		CurrentMatch: 0,
+		Theme:        colourTheme(),
+	}
+
+	for _, width := range []int{20, 30} {
+		row := Render(width, 1, view)[0]
+		if got := layout.Width(row); got != width {
+			t.Errorf("largura %d: linha com %d células", width, got)
+		}
+		if !strings.ContainsRune(row, 0x1b) {
+			t.Errorf("largura %d: nada foi pintado", width)
+		}
+	}
+}
+
+// TestAMatchOnAnotherLineIsNotPaintedHere: the marks carry document coordinates,
+// so the slice offset has to be honoured.
+func TestAMatchOnAnotherLineIsNotPaintedHere(t *testing.T) {
+	view := View{
+		Lines:        []string{"sem casamento"},
+		Offset:       10,
+		Matches:      []Match{{Start: Position{0, 0}, End: Position{0, 3}}},
+		CurrentMatch: 0,
+		Theme:        colourTheme(),
+	}
+
+	if row := Render(30, 1, view)[0]; strings.ContainsRune(row, 0x1b) {
+		t.Errorf("um casamento de outra linha foi pintado: %q", row)
+	}
+}
