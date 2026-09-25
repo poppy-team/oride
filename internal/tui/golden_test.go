@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ori-team/oride/internal/action"
 	"github.com/ori-team/oride/internal/tui/focus"
 	"github.com/ori-team/oride/internal/tui/overlay"
 	"github.com/ori-team/oride/internal/tui/theme"
@@ -76,6 +77,28 @@ func frameCases() []frameCase {
 		}},
 		{name: "overlay-compact", width: 60, height: 20, arrange: func(m *Model) {
 			m.overlay = overlay.Help
+		}},
+
+		// The search bar, closed and open, with and without the replacement field.
+		{name: "find-bar", width: 100, height: 24, arrange: func(m *Model) {
+			m.application.Store.OpenEmpty()
+			_ = m.application.Apply(action.Find)
+			m.application.Find.Query = "alfa"
+			m.application.Find.Matches = nil
+		}},
+		{name: "find-bar-replace", width: 100, height: 24, arrange: func(m *Model) {
+			m.application.Store.OpenEmpty()
+			_ = m.application.Apply(action.Find)
+			_ = m.application.Apply(action.Replace)
+			m.application.Find.Query = "alfa"
+			m.application.Find.Replace = "ALFA"
+		}},
+		{name: "find-bar-invalid-regex", width: 100, height: 24, arrange: func(m *Model) {
+			m.application.Store.OpenEmpty()
+			_ = m.application.Apply(action.Find)
+			m.application.Find.Query = "[sem fechar"
+			m.application.Find.Options.UseRegex = true
+			m.application.Find.Recompute("alfa")
 		}},
 	}
 }

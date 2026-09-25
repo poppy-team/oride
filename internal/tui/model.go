@@ -24,6 +24,7 @@ import (
 	"github.com/ori-team/oride/internal/keymap"
 	"github.com/ori-team/oride/internal/tui/component"
 	"github.com/ori-team/oride/internal/tui/editorview"
+	"github.com/ori-team/oride/internal/tui/findbar"
 	"github.com/ori-team/oride/internal/tui/focus"
 	"github.com/ori-team/oride/internal/tui/layout"
 	"github.com/ori-team/oride/internal/tui/menubar"
@@ -294,6 +295,9 @@ func (m Model) Frame() string {
 	rows = append(rows, menubar.Render(m.size.Width, m.menuView()))
 	rows = append(rows, tabs.Render(m.size.Width, m.tabsView()))
 	rows = append(rows, m.bodyRows(regions)...)
+	if !regions.FindBar.Empty() {
+		rows = append(rows, findbar.Render(regions.FindBar.Width, m.findView())...)
+	}
 	rows = append(rows, statusbar.Render(m.size.Width, m.statusView()))
 
 	for len(rows) < m.size.Height {
@@ -696,8 +700,50 @@ func scrollFor(selected int) int {
 // wants is what the model asks the layout to show.
 func (m Model) wants() layout.Wants {
 	return layout.Wants{
-		ShowTree:  m.application.ShowTree,
-		TreeWidth: treeWidth,
+		ShowTree:   m.application.ShowTree,
+		TreeWidth:  treeWidth,
+		FindHeight: m.findHeight(),
+	}
+}
+
+// findHeight is how many rows the search bar wants.
+//
+// The overlay name is the model's, and the extra row for the replacement field is
+// the search state's: the bar grows when the field is revealed, and the layout is
+// told before it divides the screen.
+func (m Model) findHeight() int {
+	if m.application.Overlay != overlayFind {
+		return 0
+	}
+	if m.application.Find.ShowReplace {
+		return 2
+	}
+	return 1
+}
+
+// overlayFind is the value the model and the oracle use for the search overlay.
+//
+// A constant rather than a literal because the string is a contract: it is
+// compared against the Rust in the conformance harness, and a typo here would
+// become a parity failure rather than a compile error.
+const overlayFind = "find"
+
+// findView builds the search bar's view from the search state.
+func (m Model) findView() findbar.View {
+	found := m.application.Find
+
+	return findbar.View{
+		Query:         found.Query,
+		Replace:       found.Replace,
+		ShowReplace:   found.ShowReplace,
+		CaseSensitive: found.Options.CaseSensitive,
+		IgnoreAccents: found.Options.IgnoreAccents,
+		WholeWord:     found.Options.WholeWord,
+		UseRegex:      found.Options.UseRegex,
+		Current:       found.Current + 1,
+		Total:         len(found.Matches),
+		RegexError:    found.RegexError,
+		Theme:         m.theme,
 	}
 }
 

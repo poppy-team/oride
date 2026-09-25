@@ -69,6 +69,10 @@ type Wants struct {
 	TreeWidth      int
 	ShowTerminal   bool
 	TerminalHeight int
+	// FindHeight is how many rows the find bar needs, or zero when it is closed.
+	// Asked for rather than assumed, because the bar grows when the replacement
+	// field is revealed and the body has to give up the row.
+	FindHeight int
 }
 
 // Regions is where every surface landed for one frame.
@@ -79,6 +83,7 @@ type Regions struct {
 	Tree      Region
 	Editor    Region
 	Terminal  Region
+	FindBar   Region
 	StatusBar Region
 	// TreeOverlaid says the tree floats over the editor instead of sitting
 	// beside it, which is what the compact class does.
@@ -114,6 +119,18 @@ func Compute(size Size, wants Wants) Regions {
 		bodyHeight = 0
 	}
 	body := Region{X: 0, Y: y, Width: size.Width, Height: bodyHeight}
+
+	// The find bar sits above the terminal and below the editor, so opening it
+	// takes rows from the editor rather than covering the text being searched.
+	if wants.FindHeight > 0 && body.Height > wants.FindHeight {
+		regions.FindBar = Region{
+			X:      0,
+			Y:      body.Y + body.Height - wants.FindHeight,
+			Width:  body.Width,
+			Height: wants.FindHeight,
+		}
+		body.Height -= wants.FindHeight
+	}
 
 	if wants.ShowTerminal && wants.TerminalHeight > 0 && body.Height > wants.TerminalHeight {
 		regions.Terminal = Region{
