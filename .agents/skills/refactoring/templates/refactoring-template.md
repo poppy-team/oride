@@ -1,25 +1,27 @@
-# Refactoring — Deliverable Template
+# Refactoring Delivery Record
 
-## 1. Metadata
-- **Skill**:  (Refactoring)
-- **Date**: YYYY-MM-DD
-- **Author / Agent**: [Agent Identifier]
-- **Target Goal / Phase**: [Goal ID]
+## Metadata
+- Skill: Refactoring
+- Date: 2026-09-23
+- Author: refactoring-agent
+- Goal: REF-07 — isolate invoice calculation without changing public behavior
 
-## 2. Executive Summary
-[Brief description of the activity performed, rationale, and primary outcomes]
+## Baseline
+- Characterization tests: 18 passing
+- Public API: `InvoiceService.calculate(invoice, adjustments) -> Decimal`
+- Golden output: `invoice-2026-09.fixture.json`
 
-## 3. Inputs & Scope
-- **Inputs Evaluated**: Code smell report, Regression test suite, Target module
-- **Artifacts Modified**: [List of modified files]
+## Transformations
+1. Extracted `normalize_adjustments` from the calculation method.
+2. Extracted `validate_currency` and kept its validation order unchanged.
+3. Replaced the repeated discount threshold with `ENTERPRISE_DISCOUNT_THRESHOLD`.
+4. Left transport, persistence, and logging code outside the refactor boundary.
 
-## 4. Key Findings & Implementation Details
-[Detailed technical notes, decisions, and structural changes made]
+## Verification
+- Each transformation kept the characterization suite green.
+- The before/after fixture diff is empty.
+- Complexity of the touched method fell from 14 to 7.
+- No public signature or error code changed.
 
-## 5. Verification & Evidence
-- **Evidence Type**: test
-- **Test Results**: [Passed / Summary of runs]
-- **Static Analysis Status**: [Pass / Clean]
-
-## 6. Next Steps & Handoff
-- [Immediate follow-up actions or downstream task dependencies]
+## Follow-Up
+- A separate issue tracks replacing the legacy tax adapter; it is not part of this refactor.

@@ -1,0 +1,73 @@
+{
+  "id": "filesystem-security",
+  "name": "Filesystem Security",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Enforce path traversal prevention, symlink resolution checks, file permission masks, and safe temporary file handling.",
+  "risk_level": "high",
+  "modes": [
+    "implementation",
+    "review",
+    "audit",
+    "testing",
+    "documentation"
+  ],
+  "inputs": [
+    "Authorized roots, path types, untrusted inputs, and operation matrix",
+    "Platform, symlink and hardlink behavior, permissions, mounts, and temporary-directory policy",
+    "File-size and count limits, atomicity, recovery, and abuse-test requirements"
+  ],
+  "outputs": [
+    "Filesystem trust-boundary and path-control audit",
+    "Safe path, descriptor, permission, temporary-file, and atomic-write implementation",
+    "Traversal, symlink, TOCTOU, permission, and resource-bound test evidence"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/file-upload-security.md"
+  ],
+  "templates": [
+    "templates/filesystem-security-report.md"
+  ],
+  "checks": [
+    "checks/filesystem-security-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh",
+    "scripts/check_permissions.sh"
+  ],
+  "examples": [
+    "examples/safe_file_upload.md"
+  ],
+  "required_evidence": [
+    "security-scan",
+    "test"
+  ],
+  "stop_conditions": [
+    "No attacker-controlled path can read, write, execute, or escape an authorized root",
+    "All mutations are bounded, permission-safe, atomic where required, and audited",
+    "Token budget exhausted or platform filesystem behavior cannot be verified"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "filesystem",
+      "storage"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

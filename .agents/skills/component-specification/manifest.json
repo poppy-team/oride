@@ -1,0 +1,67 @@
+{
+  "id": "component-specification",
+  "name": "Component Specification",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Specify component props, variants, keyboard accessibility, and state contracts.",
+  "risk_level": "low",
+  "modes": [
+    "design",
+    "documentation"
+  ],
+  "inputs": [
+    "Component responsibility, usage contexts, and explicit non-goals",
+    "Typed props, variants, sizes, states, tokens, and responsive constraints",
+    "Keyboard, focus, screen-reader, and test-fixture acceptance criteria"
+  ],
+  "outputs": [
+    "Implementation-ready component API and complete state matrix",
+    "Controlled-state, slot, event, and focus contracts",
+    "Keyboard and ARIA fixtures plus an unresolved-exception register"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/component-specification-guide.md"
+  ],
+  "templates": [
+    "templates/wireframe-spec.md"
+  ],
+  "checks": [
+    "checks/component-specification-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "Every prop, state cell, event, and keyboard path is resolved or justified",
+    "State fixtures cover default, loading, empty, error, and disabled behavior",
+    "Token budget exhausted or component ownership is disputed"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "ui",
+      "design-system"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

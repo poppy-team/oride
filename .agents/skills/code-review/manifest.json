@@ -1,21 +1,24 @@
 {
   "id": "code-review",
-  "name": "Code Review",
-  "version": 1,
-  "schema_version": 2,
-  "purpose": "Perform independent, evidence-based code reviews across multi-model implementations.",
+  "name": "Independent Evidence-Based Code Review",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Perform independent, evidence-based code reviews with severity-graded findings, deterministic verdicts, and mandatory re-verification of fixes.",
   "risk_level": "low",
   "modes": [
-    "review"
+    "review",
+    "audit"
   ],
   "inputs": [
-    "Task requirements",
-    "System architecture",
-    "Relevant source files"
+    "Unified diff or commit range plus base revision",
+    "Active Goal acceptance criteria and locked invariants",
+    "Repository policy and required checks",
+    "Test and static-analysis reports for the change"
   ],
   "outputs": [
-    "Implementation / verification output",
-    "Evidence record"
+    "Review verdict (APPROVE / REQUEST CHANGES / ESCALATE)",
+    "Severity-graded, file:line-anchored finding list",
+    "Re-verification report for blockers and majors"
   ],
   "requires": [],
   "conflicts": [],
@@ -24,28 +27,53 @@
     "filesystem.write",
     "process.spawn"
   ],
-  "references": [],
-  "templates": [],
-  "checks": [],
-  "scripts": [],
+  "references": [
+    "references/code-review-guide.md"
+  ],
+  "templates": [
+    "templates/code-review-spec.md"
+  ],
+  "checks": [
+    "checks/code-review-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
   "examples": [],
   "required_evidence": [
+    "review",
     "test"
   ],
   "stop_conditions": [
-    "Task acceptance criteria satisfied with evidence",
+    "Verdict issued with all blockers and majors resolved and re-verified or waived by policy owner",
+    "Scope exceeds authority and is escalated with a written handoff",
     "Token budget exhausted",
     "Blocked on external dependency"
   ],
   "provenance": {
     "origin": "framework",
     "license": "MIT",
-    "source": "project-atlas-framework",
-    "version": "0.3.0",
+    "source": "prumo",
+    "version": "0.4.0",
     "checksum": "",
-    "modified": "2026-08-14"
+    "modified": "2026-09-23"
   },
   "core": true,
+  "select": {
+    "project_types": [
+      "api",
+      "web-saas",
+      "web-app",
+      "compiler",
+      "desktop"
+    ],
+    "features_any": [
+      "code-review",
+      "review",
+      "verification",
+      "quality-gate"
+    ]
+  },
   "requires_any": [],
   "tools": []
 }

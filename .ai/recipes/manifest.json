@@ -1,6 +1,7 @@
 {
-  "generated_by": {
-    "project_atlas": "0.2.0"
+  "resolved_by": {
+    "prumo": "0.6.0",
+    "profile": "project-profile.json"
   },
   "recipes": [
     "documentation-refactor",
@@ -12,7 +13,7 @@
   ],
   "reasons": {
     "documentation-refactor": [
-      "skill-match"
+      "feature"
     ],
     "feature-standard": [
       "bundle:cli"
@@ -25,10 +26,10 @@
       "risk-rule:security-risk"
     ],
     "ui-feature": [
-      "skill-match"
+      "feature"
     ],
     "ui-review": [
-      "skill-match"
+      "feature"
     ]
   }
 }

@@ -1,21 +1,27 @@
 {
   "id": "documentation",
-  "name": "Documentation Engineering",
-  "version": 1,
-  "schema_version": 2,
-  "purpose": "Maintain canonical markdown documentation for users, developers, and operators.",
+  "name": "Documentation Engineering & Canonical Markdown Publishing",
+  "core": true,
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Maintain canonical Markdown documentation for users, developers, and operators with explicit ownership, authority roles, drift detection against code, link integrity, and versioned publishing.",
   "risk_level": "low",
   "modes": [
-    "documentation"
+    "documentation",
+    "review",
+    "audit",
+    "design"
   ],
   "inputs": [
-    "Task requirements",
-    "System architecture",
-    "Relevant source files"
+    "Documentation scope: audience, pages in scope, and authority roles",
+    "Source of truth links: code modules, schemas, or configs each page documents",
+    "Publishing setup: docs site toolchain, link checker, target version branch",
+    "Ownership map: named owner per page plus review cadence"
   ],
   "outputs": [
-    "Implementation / verification output",
-    "Evidence record"
+    "Updated pages with frontmatter, runnable examples, and verified links",
+    "Drift report with findings owned and dated, or an explicit clean bill",
+    "Publishing record with built site version and review schedule"
   ],
   "requires": [],
   "conflicts": [],
@@ -24,28 +30,54 @@
     "filesystem.write",
     "process.spawn"
   ],
-  "references": [],
-  "templates": [],
-  "checks": [],
-  "scripts": [],
+  "references": [
+    "references/documentation-guide.md"
+  ],
+  "templates": [
+    "templates/documentation-spec.md"
+  ],
+  "checks": [
+    "checks/documentation-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
   "examples": [],
   "required_evidence": [
-    "test"
+    "test",
+    "review"
   ],
   "stop_conditions": [
-    "Task acceptance criteria satisfied with evidence",
+    "All touched pages accurate against current code with zero broken links and clean site build",
+    "Drift findings fixed or tracked as defects with owners and fix-by dates",
+    "Owners and next review dates recorded for every touched page",
     "Token budget exhausted",
     "Blocked on external dependency"
   ],
   "provenance": {
     "origin": "framework",
     "license": "MIT",
-    "source": "project-atlas-framework",
-    "version": "0.3.0",
+    "source": "prumo",
+    "version": "0.4.0",
     "checksum": "",
-    "modified": "2026-08-14"
+    "modified": "2026-09-23"
   },
-  "core": true,
+  "select": {
+    "project_types": [
+      "api",
+      "web-saas",
+      "cli",
+      "library"
+    ],
+    "features_any": [
+      "documentation",
+      "runbooks",
+      "api-reference",
+      "publishing",
+      "drift-detection",
+      "adr"
+    ]
+  },
   "requires_any": [],
   "tools": []
 }

@@ -1,21 +1,25 @@
 # Project Intelligence — Verification Checklist
 
-## Pre-Execution Gate
-- [ ] Goal or Task is locked and measurable.
-- [ ] Required inputs (Task requirements, System architecture, Relevant source files) are available and schema-validated.
-- [ ] Execution token and step budget are within bounded limits.
+## 1. Estimate Integrity
+- [ ] Estimate (hours, tokens, complexity class) is timestamped before work starts.
+- [ ] No estimate is backfilled or edited after completion; corrections append a new line.
+- [ ] Complexity class S/M/L follows the documented rubric, not ad-hoc labels.
 
-## Quality & Compliance Criteria
-- [ ] Implementation adheres to Clean Code and explicit responsibility principles.
-- [ ] No cyclic dependencies or layer boundary violations introduced.
-- [ ] Zero secrets, private tokens, or sensitive credentials exposed.
-- [ ] Error conditions are handled explicitly with actionable error context.
+## 2. Measurement Honesty
+- [ ] Actual hours come from wall-clock logs, actual tokens from the token ledger.
+- [ ] Test counts, review rounds, and reopen flags are recorded as observed.
+- [ ] Variance is reported with sign for every metric; no metric is silently dropped.
 
-## Verification & Testing
-- [ ] Unit tests pass deterministically (target: >=85% coverage for business logic).
-- [ ] Static analysis and formatting checks pass without warnings.
-- [ ] Required evidence (test) has been generated and recorded.
+## 3. Calibration Discipline
+- [ ] Calibration factors derive from class means over at least 5 historical tasks.
+- [ ] Raw and calibrated estimates are both recorded for the next task.
+- [ ] Single-outlier adjustments are rejected; class statistics govern.
 
-## Sign-Off
-- [ ] Task acceptance criteria verified.
-- [ ] Evidence appended to task report / project intelligence.
+## 4. Ledger Hygiene
+- [ ] Every entry validates against the intelligence JSONL schema (required fields present, types correct).
+- [ ] Entries carry task ids and classes only; no individual attribution fields exist.
+- [ ] Weekly aggregation runs and publishes class means for hours and tokens.
+
+## 5. Verification Gates
+- [ ] Variance formula applied uniformly: (actual - estimate) / estimate * 100.
+- [ ] Automated verification script `scripts/verify.sh` executes with exit code 0.

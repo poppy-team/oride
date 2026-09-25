@@ -1,0 +1,33 @@
+{
+  "brand": {
+    "primary": {
+      "50": { "value": "#e3f2fd", "type": "color" },
+      "100": { "value": "#bbdefb", "type": "color" },
+      "500": { "value": "#2196f3", "type": "color" },
+      "900": { "value": "#0d47a1", "type": "color" }
+    }
+  },
+  "semantic": {
+    "success": { "value": "#4caf50", "type": "color" },
+    "error": { "value": "#f44336", "type": "color" },
+    "warning": { "value": "#ff9800", "type": "color" }
+  },
+  "spacing": {
+    "xs": { "value": "4px", "type": "dimension" },
+    "sm": { "value": "8px", "type": "dimension" },
+    "md": { "value": "16px", "type": "dimension" },
+    "lg": { "value": "24px", "type": "dimension" },
+    "xl": { "value": "32px", "type": "dimension" }
+  },
+  "typography": {
+    "fontFamily": {
+      "base": { "value": "'Inter', system-ui, sans-serif", "type": "fontFamily" },
+      "mono": { "value": "'Fira Code', monospace", "type": "fontFamily" }
+    },
+    "fontSize": {
+      "body": { "value": "1rem", "type": "fontSize" },
+      "h1": { "value": "2.5rem", "type": "fontSize" },
+      "h2": { "value": "2rem", "type": "fontSize" }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "dependency-management",
+  "name": "Dependency Management",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Manage dependency surface, verify provenance, pin versions, and audit transitive security advisories.",
+  "risk_level": "medium",
+  "modes": [
+    "audit",
+    "implementation"
+  ],
+  "inputs": [
+    "Project manifest (Cargo.toml, package.json, pyproject.toml)",
+    "Lockfile",
+    "Security advisory databases"
+  ],
+  "outputs": [
+    "Audited lockfile",
+    "Dependency vulnerability report",
+    "License compliance scorecard"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [],
+  "checks": [
+    "checks/dependency-audit.md"
+  ],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "security-scan",
+    "build"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "core": true,
+  "requires_any": [],
+  "tools": []
+}

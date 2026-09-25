@@ -1,0 +1,353 @@
+{
+  "version": 1,
+  "packages": [
+    {
+      "id": "accessibility",
+      "version": "0.6.0",
+      "checksum": "6ebd69e307743e931ce72c6b9295e7251f164c1a94eb2548965668b40ba85be7",
+      "type": "skill"
+    },
+    {
+      "id": "architecture-quality",
+      "version": "0.6.0",
+      "checksum": "188731a115972245ce8c9f7adbacd7d07c25cb29406057516200d5e7cab28120",
+      "type": "skill"
+    },
+    {
+      "id": "benchmarking",
+      "version": "0.6.0",
+      "checksum": "9e33e4d1ab6493a82aedeaf3ee475e0200b0db566304df22966b3bc5fbb220a5",
+      "type": "skill"
+    },
+    {
+      "id": "ci-cd",
+      "version": "0.6.0",
+      "checksum": "c74a2b7f9cbb7ffc160972aed2f1a4f03503ca4c86e5a48b93df3980f4f91039",
+      "type": "skill"
+    },
+    {
+      "id": "clean-code",
+      "version": "0.6.0",
+      "checksum": "141ab06ee8f88302f06c50d4a5897c7804d31f5fe8a867bdc4d2ac8cfe348a8f",
+      "type": "skill"
+    },
+    {
+      "id": "code-quality",
+      "version": "0.6.0",
+      "checksum": "c7fd0d2edf9b8388f79e4c5e90f52c4fe7d7274933db2a85973508776fe6b101",
+      "type": "skill"
+    },
+    {
+      "id": "code-review",
+      "version": "0.6.0",
+      "checksum": "82fbc30372ee3fc75a70636d125b4976154625d13dc5c32d71623d1cdbf65965",
+      "type": "skill"
+    },
+    {
+      "id": "cognitive-clarity",
+      "version": "0.6.0",
+      "checksum": "0b5006312782ee832d33ff5a8d9b1d9d73c8067a3adcabcc7d5dc259ac3bbc92",
+      "type": "skill"
+    },
+    {
+      "id": "component-specification",
+      "version": "0.6.0",
+      "checksum": "c3152380d43184835b12d9899b091df6ea3f2e1c9ed529a55697c8095c2e02af",
+      "type": "skill"
+    },
+    {
+      "id": "concurrency-quality",
+      "version": "0.6.0",
+      "checksum": "82a82299ff5471b8af61da93a815030cd8c143d4cb302baee4efab5c467f175c",
+      "type": "skill"
+    },
+    {
+      "id": "contrast",
+      "version": "0.6.0",
+      "checksum": "67c95f5de4a34066c2093d2d41881cbf65e7bf7bfc40f00f7beb1d7638e43c98",
+      "type": "skill"
+    },
+    {
+      "id": "dependency-management",
+      "version": "0.6.0",
+      "checksum": "2c83a74a4b32c44b9463c62ad63437300e2f0a0f29e0658b0b6bf5ab45dc3389",
+      "type": "skill"
+    },
+    {
+      "id": "design-system",
+      "version": "0.6.0",
+      "checksum": "2d3f06878c9b1585d3c612cc28b81b0914e2249df7b6a4cafc1ccc0488406d96",
+      "type": "skill"
+    },
+    {
+      "id": "design-tokens",
+      "version": "0.6.0",
+      "checksum": "3d81d9d0adbcb0cd98135245cf1c1d70fa6d36ee6ddbf63544621e5ecd79c474",
+      "type": "skill"
+    },
+    {
+      "id": "documentation",
+      "version": "0.6.0",
+      "checksum": "a5b5819599457d061b086fd1e71374427a309183cc64572aa05a9bca75a96560",
+      "type": "skill"
+    },
+    {
+      "id": "editor-tooling",
+      "version": "0.6.0",
+      "checksum": "48c2ee43cf97e9066942787a224b52b29b4394e0c0fc1155aa86340f4b0b9cc2",
+      "type": "skill"
+    },
+    {
+      "id": "error-handling",
+      "version": "0.6.0",
+      "checksum": "f06e810f7004e48c4281deaaf7b8719d243e248996cc25fed782b8f659500125",
+      "type": "skill"
+    },
+    {
+      "id": "filesystem-security",
+      "version": "0.6.0",
+      "checksum": "85a0f618efdb51c18fe19569e4c11eeb5124293e73e8ff938ffb403cc6cb2b1a",
+      "type": "skill"
+    },
+    {
+      "id": "focus-management",
+      "version": "0.6.0",
+      "checksum": "ff1900d672fc62402f5eabad668f46dd3da00ab23a73bdf359c142a5cc305259",
+      "type": "skill"
+    },
+    {
+      "id": "git-workflow",
+      "version": "0.6.0",
+      "checksum": "99ad7a0ff3c12f0064e34997b9e8814a7457820a1f72fbe748d8b9b358fc7b64",
+      "type": "skill"
+    },
+    {
+      "id": "github-ci-debug",
+      "version": "0.6.0",
+      "checksum": "092e6681de6c21d3ffaa628775e80b2ef2c652ca3648b791ae0ac513565f9eeb",
+      "type": "skill"
+    },
+    {
+      "id": "goal-management",
+      "version": "0.6.0",
+      "checksum": "1a63530dcfee691b3acb366e371929be037c8ad4bf2ff6aecd305c1f570c997d",
+      "type": "skill"
+    },
+    {
+      "id": "input-handling",
+      "version": "0.6.0",
+      "checksum": "eadfff65f1c9c22dea41c66f1bc715043f5f7b25a60417df778f93ed2fa604c3",
+      "type": "skill"
+    },
+    {
+      "id": "interaction-research",
+      "version": "0.6.0",
+      "checksum": "a21f9afbe394906bcd38131fe2fb719a798afc1e84fa623ece69911c8348a9d6",
+      "type": "skill"
+    },
+    {
+      "id": "keyboard-accessibility",
+      "version": "0.6.0",
+      "checksum": "00dd896db170e5dd0325a1954426bbec72430233a22e2bcf13e41b43ae3ebc10",
+      "type": "skill"
+    },
+    {
+      "id": "lang-bash",
+      "version": "0.6.0",
+      "checksum": "1e38633c94e7351d2d1a4863a28e9be1a1dad6588697d947cf4acac8aa079e75",
+      "type": "skill"
+    },
+    {
+      "id": "lang-c",
+      "version": "0.6.0",
+      "checksum": "04149fa678cd5a036a0ac3755b795320c016012f4ccd9dfdc1bc424e5872d446",
+      "type": "skill"
+    },
+    {
+      "id": "lang-go",
+      "version": "0.6.0",
+      "checksum": "f950196dd6a47ebdbecf1e59b3bdaf4e0ec827642d0b51e927db3686295dfae1",
+      "type": "skill"
+    },
+    {
+      "id": "lang-json",
+      "version": "0.6.0",
+      "checksum": "d62d8ca4be40c2093414404266370f486c280b5bd8e3c47cc2ce6e0db1dc653d",
+      "type": "skill"
+    },
+    {
+      "id": "lang-rust",
+      "version": "0.6.0",
+      "checksum": "bac1ef2d55aed08405f2635e71b4fe3c322948517d2359bc3b2122a30775ac40",
+      "type": "skill"
+    },
+    {
+      "id": "lang-yaml",
+      "version": "0.6.0",
+      "checksum": "e0d1cf0c4082375e62243573f50e9e0c8355117b86420a40c3cfddff77e45d2b",
+      "type": "skill"
+    },
+    {
+      "id": "language-tooling",
+      "version": "0.6.0",
+      "checksum": "a7703a5d2baf99e9352bb970b39dac5c4ec3d25645a89dd6794a5e20a3c189a3",
+      "type": "skill"
+    },
+    {
+      "id": "lean-progressive-context",
+      "version": "0.6.0",
+      "checksum": "64ec05f317f6647edac203d89e142cd9080c9801c5f0cdf440daa87a3763e667",
+      "type": "skill"
+    },
+    {
+      "id": "memory-management",
+      "version": "0.6.0",
+      "checksum": "5362e8ab54084abe7dbc718b5ebba49a1245fcf81ca3f146d2671fe8b6d0c6bc",
+      "type": "skill"
+    },
+    {
+      "id": "motion-accessibility",
+      "version": "0.6.0",
+      "checksum": "52bd432ed88032afae03cb242b77f7b026cbf16343f07091eb32fe4bd67af91e",
+      "type": "skill"
+    },
+    {
+      "id": "performance-native",
+      "version": "0.6.0",
+      "checksum": "916c3060caf48cbae5ebd625662a8c60c5f8e0f53bef1ac93776c4d936073637",
+      "type": "skill"
+    },
+    {
+      "id": "plugin-architecture",
+      "version": "0.6.0",
+      "checksum": "4737bdd28929c5bfb88ac449f0c75ae99960090613e139a764bbc45053fd9748",
+      "type": "skill"
+    },
+    {
+      "id": "plugin-security",
+      "version": "0.6.0",
+      "checksum": "36d6e2007f320206beedec6236c90543e8bc5b6177e07bc67663e97a45599cff",
+      "type": "skill"
+    },
+    {
+      "id": "process-execution-security",
+      "version": "0.6.0",
+      "checksum": "1e29994ecc2472e8d8c8ff19fe993666a59adfae8d8dfba2ff72ae4edfa59083",
+      "type": "skill"
+    },
+    {
+      "id": "project-documentation-architect",
+      "version": "0.6.0",
+      "checksum": "8e4a134c4e2d5bade1ac76e5aa045e6fb7ea5f0f861398a189c0f967a093a823",
+      "type": "skill"
+    },
+    {
+      "id": "project-intelligence",
+      "version": "0.6.0",
+      "checksum": "995c4f822bea43c90fea9556c35e1e917a64c111dea2a6c686ea3b3d28a89f44",
+      "type": "skill"
+    },
+    {
+      "id": "prumo-navigation",
+      "version": "0.6.0",
+      "checksum": "7576b2e503ad9455a32116c351f6d3de85ce01f49cad4d8a6906c0783a397570",
+      "type": "skill"
+    },
+    {
+      "id": "refactoring",
+      "version": "0.6.0",
+      "checksum": "2be3b8d2ec581fb61838159733c65e8de8881fbb503f730bcdcab9731e82ccb3",
+      "type": "skill"
+    },
+    {
+      "id": "release-engineering",
+      "version": "0.6.0",
+      "checksum": "9ed32d8f5ba165635c506322360f492f6177dbbb232e48822ad7176d3cee8bba",
+      "type": "skill"
+    },
+    {
+      "id": "rust-analyzer-context-indexing",
+      "version": "0.6.0",
+      "checksum": "32b17e0bbf2e0cd8b6382ef4f691645e146a5075cefefe007421d84d342bfa0a",
+      "type": "skill"
+    },
+    {
+      "id": "screen-reader",
+      "version": "0.6.0",
+      "checksum": "2ea65acf0076c0f51346e5f18a78ce244f5a384773e730b07d88e5588aa61210",
+      "type": "skill"
+    },
+    {
+      "id": "secrets-security",
+      "version": "0.6.0",
+      "checksum": "23d3f0474d11d4f69df355230f65acf11001485c039d17435f828957b80919a3",
+      "type": "skill"
+    },
+    {
+      "id": "secure-coding",
+      "version": "0.6.0",
+      "checksum": "368069a74595b6e47b90ab5478ef48824fa6ebc200d69287307c30566110cf90",
+      "type": "skill"
+    },
+    {
+      "id": "security-review",
+      "version": "0.6.0",
+      "checksum": "d0ecbf4d6961bdf10342439b6a2405a7ccea82d213efa2df2d070c1093cc31ed",
+      "type": "skill"
+    },
+    {
+      "id": "supply-chain-security",
+      "version": "0.6.0",
+      "checksum": "874506960bbef79e6608eaa9449a37dbc74c3af7390ee8dea184a5fcf3b02e5f",
+      "type": "skill"
+    },
+    {
+      "id": "surface-protocol-conformance",
+      "version": "0.6.0",
+      "checksum": "24428e682a17fbc8a5e57da44946fecb0adbf36c650b040e943a1b5cad14acf4",
+      "type": "skill"
+    },
+    {
+      "id": "testing-quality",
+      "version": "0.6.0",
+      "checksum": "523215914608391889ce08099522f590eee63acc389804f68b4507b15c58a932",
+      "type": "skill"
+    },
+    {
+      "id": "threat-modeling",
+      "version": "0.6.0",
+      "checksum": "500d46378655a099d76e7409cca77a9da3ad3e1aaf2a0dcc4fd6de5824bfcdcd",
+      "type": "skill"
+    },
+    {
+      "id": "tree-sitter-context-indexing",
+      "version": "0.6.0",
+      "checksum": "47a5a417f7a753ae1359a8b6e9b800b30694e76e31900bac4461a917be375c43",
+      "type": "skill"
+    },
+    {
+      "id": "ui-implementation",
+      "version": "0.6.0",
+      "checksum": "07952340b5dca2ac09b8c3f7c5462c50c76c02ca1c3ea1b0d3efab5d7009bcdd",
+      "type": "skill"
+    },
+    {
+      "id": "visual-regression",
+      "version": "0.6.0",
+      "checksum": "a9d78985fb9a48670d33ef3e20a778216d9dd3f328414aed4004eba56f96c929",
+      "type": "skill"
+    },
+    {
+      "id": "wireframe-styleguide",
+      "version": "0.6.0",
+      "checksum": "2e6e3232bf6f3a1e1a5fbcb89d3dd7a4f3d51bd122984cf78af38d0a9d520b6e",
+      "type": "skill"
+    },
+    {
+      "id": "zoom-reflow",
+      "version": "0.6.0",
+      "checksum": "c1fc756ce5aa778cf71bf649c9de57c15af617b44f06d4c8551b3ee4e9efc58e",
+      "type": "skill"
+    }
+  ]
+}

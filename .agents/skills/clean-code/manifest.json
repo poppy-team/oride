@@ -1,58 +1,94 @@
 {
   "id": "clean-code",
-  "name": "Clean Code",
-  "version": 1,
-  "schema_version": 2,
-  "purpose": "Ensure high cohesion, low coupling, explicit error handling, naming clarity, and clear module boundaries.",
-  "risk_level": "low",
+  "name": "Pragmatic Clean Code & Design Ergonomics",
+  "core": true,
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Enforce pragmatic Clean Code: domain naming, function single-responsibility, cohesion & coupling metrics, anti-premature abstraction, and smell elimination.",
+  "risk_level": "medium",
   "modes": [
     "implementation",
-    "review"
+    "review",
+    "audit"
   ],
   "inputs": [
-    "Target source files",
-    "Project architectural conventions",
-    "Active task acceptance criteria"
+    {
+      "name": "source_files",
+      "type": "path[]",
+      "description": "Source files to audit or refactor",
+      "required": true
+    },
+    {
+      "name": "domain_boundaries",
+      "type": "object",
+      "description": "Domain entities, glossaries, and module architecture maps",
+      "required": false
+    }
   ],
   "outputs": [
-    "Refactored clean source code",
-    "Unit test evidence",
-    "Cleanliness checklist scorecard"
+    {
+      "name": "clean_code",
+      "type": "diff",
+      "description": "Refactored code with minimal complexity and clean naming"
+    },
+    {
+      "name": "clean_code_review",
+      "type": "document",
+      "description": "Review report conforming to templates/clean-code-review.md"
+    }
   ],
-  "requires": [],
+  "requires": [
+    "testing-quality"
+  ],
   "conflicts": [],
   "capabilities": [
     "filesystem.read",
     "filesystem.write",
     "process.spawn"
   ],
-  "references": [],
+  "references": [
+    "references/clean-code-principles.md",
+    "references/martin-fowler-refactoring.md"
+  ],
   "templates": [
     "templates/clean-code-review.md"
   ],
   "checks": [
     "checks/cleanliness-checklist.md"
   ],
-  "scripts": [],
-  "examples": [],
+  "scripts": [
+    "scripts/verify.sh",
+    "scripts/analyze_complexity.sh",
+    "scripts/analyze-cohesion.sh"
+  ],
+  "examples": [
+    "examples/before_after_clean_code.md"
+  ],
   "required_evidence": [
+    "review",
     "test",
     "lint"
   ],
   "stop_conditions": [
     "Task acceptance criteria satisfied with evidence",
-    "Token budget exhausted",
-    "Blocked on external dependency"
+    "All unit and regression tests pass deterministically",
+    "Cyclomatic complexity of modified functions <= 10",
+    "Token budget exhausted"
   ],
   "provenance": {
     "origin": "framework",
     "license": "MIT",
-    "source": "project-atlas-framework",
-    "version": "0.3.0",
+    "source": "prumo",
+    "version": "0.4.0",
     "checksum": "",
-    "modified": "2026-08-14"
+    "modified": "2026-09-23"
   },
-  "core": true,
-  "requires_any": [],
+  "select": {
+    "features_any": [
+      "refactoring",
+      "code-quality",
+      "design"
+    ]
+  },
   "tools": []
 }

@@ -1,10 +1,14 @@
 {
-  "generated_by": {
-    "project_atlas": "0.2.0"
+  "resolved_by": {
+    "prumo": "0.6.0",
+    "profile": "project-profile.json"
   },
   "agents": [
+    "accessibility-reviewer",
     "architect",
     "debugger",
+    "design-system-engineer",
+    "devops-engineer",
     "documentation-maintainer",
     "explorer",
     "implementer",
@@ -12,14 +16,25 @@
     "reviewer",
     "security-architect",
     "security-reviewer",
-    "tester"
+    "tester",
+    "ux-architect"
   ],
   "reasons": {
+    "accessibility-reviewer": [
+      "feature",
+      "risk"
+    ],
     "architect": [
       "core"
     ],
     "debugger": [
       "core"
+    ],
+    "design-system-engineer": [
+      "feature"
+    ],
+    "devops-engineer": [
+      "feature"
     ],
     "documentation-maintainer": [
       "core"
@@ -48,6 +63,9 @@
     "tester": [
       "bundle:cli",
       "core"
+    ],
+    "ux-architect": [
+      "feature"
     ]
   }
 }

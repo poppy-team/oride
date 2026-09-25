@@ -1,0 +1,66 @@
+/* Universal Motion Accessibility & Vestibular Defense Reference Stylesheet */
+
+/* 1. Global Defensive Fallback: Clamps all uncontrolled animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 2. Progressive Modal Component: Smooth slide-up on default, opacity fade on reduced motion */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  opacity: 0;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+}
+
+.modal-dialog {
+  opacity: 0;
+  transform: none; /* Default safe stationary position */
+  transition: opacity 150ms ease;
+}
+
+/* Enhanced spatial motion only when user permits */
+@media (prefers-reduced-motion: no-preference) {
+  .modal-dialog {
+    transform: translateY(24px) scale(0.96);
+    transition: opacity 200ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+.modal-open .modal-backdrop,
+.modal-open .modal-dialog {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .modal-open .modal-dialog {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 3. Accessible Loading Indicator: Continuous spin vs Step pulse */
+.spinner-circle {
+  animation: spinner-spin 1s linear infinite;
+}
+
+@keyframes spinner-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner-circle {
+    animation: none; /* Completely disable continuous rotation */
+    opacity: 0.8;
+  }
+}

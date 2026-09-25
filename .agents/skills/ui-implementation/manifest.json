@@ -1,0 +1,88 @@
+{
+  "id": "ui-implementation",
+  "name": "Design System UI Component Implementation",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Implement reusable, token-bound design system components across Web and Native, enforcing a 19-point state matrix, responsive layouts, and accessibility.",
+  "risk_level": "medium",
+  "modes": [
+    "implementation",
+    "review",
+    "design"
+  ],
+  "inputs": [
+    {
+      "name": "component_spec",
+      "type": "path",
+      "description": "Component anatomy, props, slots, and variant specification",
+      "required": true
+    },
+    {
+      "name": "design_tokens",
+      "type": "path",
+      "description": "DTCG 2025.10 design token definitions (JSON/CSS)",
+      "required": true
+    }
+  ],
+  "outputs": [
+    {
+      "name": "component_source",
+      "type": "diff",
+      "description": "Implemented component code across supported UI stacks"
+    },
+    {
+      "name": "component_report",
+      "type": "document",
+      "description": "Verification report conforming to templates/ui-component-report.md"
+    }
+  ],
+  "requires": [
+    "clean-code",
+    "testing-quality"
+  ],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/ui-implementation-guide.md"
+  ],
+  "templates": [
+    "templates/ui-component-report.md"
+  ],
+  "checks": [
+    "checks/ui-implementation-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "All 19 states of the component state matrix verified",
+    "Token budget exhausted"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.6.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "ui",
+      "frontend",
+      "design-system",
+      "components"
+    ]
+  },
+  "tools": []
+}

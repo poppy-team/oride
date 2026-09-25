@@ -1,22 +1,25 @@
 {
   "id": "lean-progressive-context",
   "name": "Lean Progressive Context",
-  "version": 1,
-  "schema_version": 2,
-  "purpose": "Select the smallest sufficient context for a task under strict token budgets.",
+  "core": true,
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Select the smallest sufficient context for a task under strict token budgets through staged loading, a running token ledger, sufficiency testing per layer, and Working Context Capsule handoffs.",
   "risk_level": "low",
   "modes": [
     "research",
-    "implementation"
+    "implementation",
+    "review"
   ],
   "inputs": [
-    "Task requirements",
-    "System architecture",
-    "Relevant source files"
+    "Task statement with explicit acceptance criteria and entry-point hints",
+    "Token budget envelope: total budget, per-stage cap, and max expansion stages",
+    "Stopping condition defining what evidence proves the current layer sufficient"
   ],
   "outputs": [
-    "Implementation / verification output",
-    "Evidence record"
+    "Minimal sufficient working set actually used for the domain work",
+    "Token ledger proving spend stayed within budget and caps",
+    "Capsule chain reconstructing the reasoning path for reviewers"
   ],
   "requires": [],
   "conflicts": [],
@@ -25,28 +28,50 @@
     "filesystem.write",
     "process.spawn"
   ],
-  "references": [],
-  "templates": [],
-  "checks": [],
-  "scripts": [],
+  "references": [
+    "references/lean-progressive-context-guide.md"
+  ],
+  "templates": [
+    "templates/lean-progressive-context-spec.md"
+  ],
+  "checks": [
+    "checks/lean-progressive-context-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
   "examples": [],
   "required_evidence": [
     "test"
   ],
   "stop_conditions": [
-    "Task acceptance criteria satisfied with evidence",
+    "Acceptance criteria addressable with the current layer and expansion halted",
+    "Max expansion stages reached without sufficiency",
     "Token budget exhausted",
     "Blocked on external dependency"
   ],
   "provenance": {
     "origin": "framework",
     "license": "MIT",
-    "source": "project-atlas-framework",
-    "version": "0.3.0",
+    "source": "prumo",
+    "version": "0.4.0",
     "checksum": "",
-    "modified": "2026-08-14"
+    "modified": "2026-09-23"
   },
-  "core": true,
+  "select": {
+    "project_types": [
+      "api",
+      "library",
+      "web-saas"
+    ],
+    "features_any": [
+      "context-management",
+      "token-budget",
+      "progressive-expansion",
+      "ai-assisted-development",
+      "research"
+    ]
+  },
   "requires_any": [],
   "tools": []
 }

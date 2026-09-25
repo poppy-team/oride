@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accessible Modal Example</title>
+<style>
+  body { font-family: system-ui, sans-serif; padding: 2rem; }
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none; justify-content: center; align-items: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    background: white; padding: 2rem; border-radius: 8px;
+    max-width: 500px; width: 100%;
+  }
+  .close-button {
+    background: none; border: none; font-size: 1.5rem;
+    position: absolute; right: 1rem; top: 1rem; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<main aria-hidden="false" id="main-content">
+  <h1>Accessible Modal Dialog</h1>
+  <button id="open-modal" aria-haspopup="dialog">Open Settings Modal</button>
+</main>
+
+<div class="modal-overlay" id="modal-overlay">
+  <!-- ARIA roles for accessibility -->
+  <div 
+    class="modal-content" 
+    role="dialog" 
+    aria-labelledby="modal-title" 
+    aria-modal="true"
+    id="modal"
+  >
+    <div style="position: relative;">
+      <h2 id="modal-title">User Settings</h2>
+      <button 
+        class="close-button" 
+        id="close-modal" 
+        aria-label="Close dialog"
+      >&times;</button>
+    </div>
+    
+    <p id="modal-desc">Update your notification preferences here.</p>
+    
+    <form>
+      <div>
+        <label for="email-notif">Email Notifications</label>
+        <input type="checkbox" id="email-notif" checked>
+      </div>
+      <div style="margin-top: 1rem;">
+        <button type="submit">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const openBtn = document.getElementById('open-modal');
+  const closeBtn = document.getElementById('close-modal');
+  const overlay = document.getElementById('modal-overlay');
+  const mainContent = document.getElementById('main-content');
+  
+  let previousActiveElement;
+
+  function openModal() {
+    previousActiveElement = document.activeElement;
+    overlay.classList.add('active');
+    mainContent.setAttribute('aria-hidden', 'true');
+    closeBtn.focus();
+  }
+
+  function closeModal() {
+    overlay.classList.remove('active');
+    mainContent.setAttribute('aria-hidden', 'false');
+    if (previousActiveElement) {
+      previousActiveElement.focus();
+    }
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+      closeModal();
+    }
+  });
+</script>
+
+</body>
+</html>

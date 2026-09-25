@@ -1,8 +1,8 @@
 {
   "id": "refactoring",
   "name": "Refactoring",
-  "version": 1,
-  "schema_version": 2,
+  "version": 2,
+  "schema_version": 3,
   "purpose": "Safely improve internal code structure without altering external observable behavior.",
   "risk_level": "medium",
   "modes": [
@@ -14,9 +14,9 @@
     "Target module"
   ],
   "outputs": [
-    "Refactored module",
-    "Green test suite evidence",
-    "Refactoring change log"
+    "Minimal behavior-preserving refactored module",
+    "Before-and-after behavior and test evidence",
+    "Transformation log with residual-scope handoff"
   ],
   "requires": [],
   "conflicts": [],
@@ -25,28 +25,37 @@
     "filesystem.write",
     "process.spawn"
   ],
-  "references": [],
-  "templates": [],
+  "references": [
+    "references/refactoring-patterns.md"
+  ],
+  "templates": [
+    "templates/refactoring-template.md"
+  ],
   "checks": [
     "checks/refactoring-invariants.md"
   ],
-  "scripts": [],
-  "examples": [],
+  "scripts": [
+    "scripts/find_long_methods.sh",
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/extract_method_refactoring.md"
+  ],
   "required_evidence": [
     "test"
   ],
   "stop_conditions": [
-    "Task acceptance criteria satisfied with evidence",
+    "Characterization tests and behavior-diff evidence pass after each minimal transformation",
     "Token budget exhausted",
     "Blocked on external dependency"
   ],
   "provenance": {
     "origin": "framework",
     "license": "MIT",
-    "source": "project-atlas-framework",
-    "version": "0.3.0",
+    "source": "prumo",
+    "version": "0.4.0",
     "checksum": "",
-    "modified": "2026-08-14"
+    "modified": "2026-09-23"
   },
   "core": true,
   "requires_any": [],

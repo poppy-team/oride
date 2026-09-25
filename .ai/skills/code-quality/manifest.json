@@ -1,0 +1,80 @@
+{
+  "id": "code-quality",
+  "name": "Code Quality Auditing, Complexity & Maintainability",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Audit cyclomatic and cognitive complexity, code duplication, and maintainability metrics across polyglot codebases with deterministic static analysis gates, and produce prioritized remediation plans with before/after evidence.",
+  "risk_level": "low",
+  "modes": [
+    "review",
+    "audit",
+    "testing"
+  ],
+  "inputs": [
+    "Repository checkout at a pinned commit plus language toolchain versions",
+    "Lint and analysis configuration in force (.golangci.yaml, ruff, eslint, clippy)",
+    "Complexity ceilings and duplication thresholds from the Goal or team policy",
+    "Per-module churn and defect history for risk ranking"
+  ],
+  "outputs": [
+    "Ranked hotspot backlog with risk scores and file-level locations",
+    "Remediation slices with before/after complexity and duplication deltas",
+    "Audit report with totals, thresholds, and residual tech-debt items"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/code-quality-guide.md"
+  ],
+  "templates": [
+    "templates/code-quality-spec.md"
+  ],
+  "checks": [
+    "checks/code-quality-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "lint"
+  ],
+  "stop_conditions": [
+    "All functions at or below cyclomatic complexity 10 and duplication at or below 3 percent",
+    "Remaining hotspots formally accepted as tech-debt items with owner and revisit date",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "project_types": [
+      "api",
+      "web-saas",
+      "cli",
+      "library"
+    ],
+    "features_any": [
+      "code-quality",
+      "complexity",
+      "duplication",
+      "lint",
+      "maintainability",
+      "refactoring"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

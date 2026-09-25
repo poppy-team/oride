@@ -1,0 +1,82 @@
+{
+  "id": "motion-accessibility",
+  "name": "Motion Accessibility & Vestibular Safety",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Design, implement, and audit animations, transitions, and motion effects conforming to WCAG 2.2 SC 2.3.1 (Three Flashes) and SC 2.3.3 (Animation from Interactions) with prefers-reduced-motion ergonomics.",
+  "risk_level": "medium",
+  "modes": [
+    "implementation",
+    "review",
+    "testing",
+    "audit"
+  ],
+  "inputs": [
+    "UI components, stylesheets, and keyframe definitions (*.css, *.scss, *.tsx)",
+    "Interaction and page transition specifications",
+    "Active task acceptance criteria"
+  ],
+  "outputs": [
+    "Motion-safe stylesheets and progressive transitions",
+    "Vestibular disorder defense configurations",
+    "Flashing and strobe frequency verification logs",
+    "Motion Accessibility Audit Reports"
+  ],
+  "requires": [
+    "clean-code",
+    "ui-implementation"
+  ],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/motion-accessibility-guide.md"
+  ],
+  "templates": [
+    "templates/motion-accessibility-report.md"
+  ],
+  "checks": [
+    "checks/motion-accessibility-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/reduced-motion.css"
+  ],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "All animations respect prefers-reduced-motion: reduce",
+    "Zero content flashes between 3 Hz and 50 Hz",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.6.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "motion-accessibility",
+      "animations",
+      "transitions",
+      "reduced-motion",
+      "accessibility",
+      "a11y",
+      "ui"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

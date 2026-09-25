@@ -1,0 +1,13 @@
+{
+  "project": {
+    "name": "my-project",
+    "kind": "service"
+  },
+  "profiles": ["Core Software", "API/Service"],
+  "contracts": ["product-charter", "api-v1", "data-model", "threat-model", "operations"],
+  "languages": {
+    "canonical": "en-US",
+    "translations": ["pt-BR"],
+    "parity": "IN_REVIEW"
+  }
+}

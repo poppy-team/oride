@@ -1,142 +1,72 @@
 {
-  "generated_by": {
-    "project_atlas": "0.2.0"
-  },
   "skills": [
     "accessibility",
     "architecture-quality",
-    "atlas-navigation",
     "benchmarking",
-    "clang-context-indexing",
+    "ci-cd",
     "clean-code",
+    "code-quality",
     "code-review",
+    "cognitive-clarity",
+    "component-specification",
+    "concurrency-quality",
     "contrast",
     "dependency-management",
+    "design-system",
+    "design-tokens",
     "documentation",
+    "editor-tooling",
     "error-handling",
+    "filesystem-security",
+    "focus-management",
     "git-workflow",
+    "github-ci-debug",
     "goal-management",
+    "input-handling",
+    "interaction-research",
     "keyboard-accessibility",
     "lang-bash",
     "lang-c",
+    "lang-go",
+    "lang-json",
     "lang-rust",
+    "lang-yaml",
+    "language-tooling",
     "lean-progressive-context",
+    "memory-management",
+    "motion-accessibility",
     "performance-native",
     "plugin-architecture",
     "plugin-security",
+    "process-execution-security",
+    "project-documentation-architect",
     "project-intelligence",
+    "prumo-navigation",
     "refactoring",
     "release-engineering",
     "rust-analyzer-context-indexing",
+    "screen-reader",
     "secrets-security",
     "secure-coding",
     "security-review",
     "supply-chain-security",
+    "surface-protocol-conformance",
     "testing-quality",
-    "threat-modeling"
+    "threat-modeling",
+    "tree-sitter-context-indexing",
+    "ui-implementation",
+    "visual-regression",
+    "wireframe-styleguide",
+    "zoom-reflow",
+    "bubbletea-v2",
+    "conformance-parity",
+    "cross-platform-terminal",
+    "doc-drift",
+    "lsp-client",
+    "pty-vt",
+    "release-go",
+    "tui-editor-engine"
   ],
-  "reasons": {
-    "accessibility": [
-      "risk-rule:accessibility-risk"
-    ],
-    "architecture-quality": [
-      "core"
-    ],
-    "atlas-navigation": [
-      "core"
-    ],
-    "benchmarking": [
-      "risk",
-      "risk-rule:performance-risk"
-    ],
-    "clang-context-indexing": [
-      "stack"
-    ],
-    "clean-code": [
-      "bundle:cli",
-      "core"
-    ],
-    "code-review": [
-      "core"
-    ],
-    "contrast": [
-      "risk-rule:accessibility-risk"
-    ],
-    "dependency-management": [
-      "core"
-    ],
-    "documentation": [
-      "core"
-    ],
-    "error-handling": [
-      "bundle:cli",
-      "core"
-    ],
-    "git-workflow": [
-      "core"
-    ],
-    "goal-management": [
-      "core"
-    ],
-    "keyboard-accessibility": [
-      "risk-rule:accessibility-risk"
-    ],
-    "lang-bash": [
-      "stack"
-    ],
-    "lang-c": [
-      "stack"
-    ],
-    "lang-rust": [
-      "stack"
-    ],
-    "lean-progressive-context": [
-      "core"
-    ],
-    "performance-native": [
-      "risk",
-      "risk-rule:performance-risk"
-    ],
-    "plugin-architecture": [
-      "feature"
-    ],
-    "plugin-security": [
-      "feature"
-    ],
-    "project-intelligence": [
-      "core"
-    ],
-    "refactoring": [
-      "core"
-    ],
-    "release-engineering": [
-      "bundle:cli",
-      "core"
-    ],
-    "rust-analyzer-context-indexing": [
-      "stack"
-    ],
-    "secrets-security": [
-      "risk"
-    ],
-    "secure-coding": [
-      "risk",
-      "risk-rule:security-risk"
-    ],
-    "security-review": [
-      "risk",
-      "risk-rule:security-risk"
-    ],
-    "supply-chain-security": [
-      "risk"
-    ],
-    "testing-quality": [
-      "bundle:cli",
-      "core"
-    ],
-    "threat-modeling": [
-      "risk",
-      "risk-rule:security-risk"
-    ]
-  }
+  "updated": "2026-09-25T00:32:09Z",
+  "version": "0.6.0"
 }

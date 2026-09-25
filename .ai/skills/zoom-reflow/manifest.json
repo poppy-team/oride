@@ -1,0 +1,62 @@
+{
+  "id": "zoom-reflow",
+  "name": "Zoom & Reflow Testing",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Verify layouts reflow without horizontal scroll at 400% zoom.",
+  "risk_level": "low",
+  "modes": [
+    "testing"
+  ],
+  "inputs": [
+    "Product requirements",
+    "Design tokens",
+    "Wireframe / UI view"
+  ],
+  "outputs": [
+    "Design specification / findings",
+    "Accessibility audit scorecard",
+    "UI tests"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [
+    "templates/wireframe-spec.md"
+  ],
+  "checks": [
+    "checks/zoom-reflow-checklist.md"
+  ],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "select": {
+    "features_any": [
+      "accessibility",
+      "ui"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

@@ -1,0 +1,132 @@
+{
+  "version": 2,
+  "project": {
+    "name": "oride",
+    "title": "Oride Terminal IDE",
+    "type": [
+      "cli"
+    ],
+    "description": "Fast, lightweight, extensible terminal IDE: editor with modal editing, embedded PTY terminal, LSP, task runner, and a pluggable theming ecosystem."
+  },
+  "stack": {
+    "languages": [
+      "go",
+      "rust",
+      "c",
+      "shell"
+    ],
+    "frameworks": [
+      "clean-architecture",
+      "elm-architecture"
+    ],
+    "runtimes": [
+      "native"
+    ],
+    "stack_any": [
+      "go",
+      "golang",
+      "rust",
+      "cargo",
+      "c",
+      "shell",
+      "posix-sh",
+      "json",
+      "yaml",
+      "toml"
+    ]
+  },
+  "features": [
+    "code-editor",
+    "editor",
+    "surface-protocol-conformance",
+    "migration",
+    "drift-detection",
+    "lsp",
+    "language-server",
+    "keyboard",
+    "input",
+    "performance",
+    "latency",
+    "profiling",
+    "benchmarking",
+    "regression-detection",
+    "concurrency",
+    "goroutines",
+    "memory",
+    "tree-sitter",
+    "grammars",
+    "syntax-queries",
+    "theming",
+    "design-tokens",
+    "design-system",
+    "localization",
+    "plugins",
+    "extensions",
+    "filesystem",
+    "process-execution",
+    "accessibility",
+    "wcag",
+    "screen-reader",
+    "motion-accessibility",
+    "reduced-motion",
+    "contrast",
+    "ci-cd",
+    "github-actions",
+    "packaging",
+    "release",
+    "semver",
+    "determinism",
+    "reproducibility",
+    "evidence-gates",
+    "quality-gate",
+    "regression-gates",
+    "acceptance-criteria",
+    "goals",
+    "handoff",
+    "context-management",
+    "token-budget",
+    "documentation",
+    "public-docs",
+    "reference",
+    "lint",
+    "formatting",
+    "code-quality",
+    "testing",
+    "e2e",
+    "diagnostics",
+    "formatting"
+  ],
+  "quality": {
+    "coverage_minimum": 85,
+    "static_analysis": "strict",
+    "security_sast": true,
+    "performance_benchmarks": true,
+    "e2e_testing": true,
+    "startup_budget": "critical"
+  },
+  "risk": [
+    "security",
+    "supply-chain",
+    "accessibility",
+    "performance",
+    "high",
+    "terminal-pty-portability",
+    "lsp-path-availability",
+    "tree-sitter-c-abi",
+    "rust-to-go-parity"
+  ],
+  "ai": {
+    "orchestrator": "prumo",
+    "autonomy": "agentic",
+    "preferred_models": [
+      {
+        "id": "anthropic/claude-sonnet",
+        "provider": "anthropic"
+      },
+      {
+        "id": "openai-compat",
+        "provider": "openai-compat"
+      }
+    ]
+  }
+}

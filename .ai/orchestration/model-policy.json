@@ -1,97 +1,118 @@
 {
+  "version": 2,
+  "selection_rule": "cheapest-reliable-model-that-passes-gates",
   "context_aware_routing": true,
   "cross_provider_review": true,
-  "roles": {
-    "architect": {
-      "fallback": [],
-      "preferred": [
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3-7-sonnet",
-        "openai/gpt-4o"
-      ]
-    },
-    "debugger": {
-      "fallback": [],
-      "preferred": [
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3-7-sonnet",
-        "openai/gpt-4o"
-      ]
-    },
-    "documentation-maintainer": {
-      "fallback": [],
-      "preferred": [
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3-7-sonnet",
-        "openai/gpt-4o"
-      ]
-    },
-    "implementer": {
-      "fallback": [],
-      "preferred": [
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3-7-sonnet",
-        "openai/gpt-4o"
-      ]
-    },
-    "release-verifier": {
-      "fallback": [],
-      "preferred": [
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3-7-sonnet",
-        "openai/gpt-4o"
-      ]
-    },
-    "reviewer": {
-      "fallback": [],
-      "preferred": [
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3-7-sonnet",
-        "openai/gpt-4o"
-      ]
-    },
-    "security-reviewer": {
-      "fallback": [],
-      "preferred": [
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3-7-sonnet",
-        "openai/gpt-4o"
-      ]
-    },
-    "tester": {
-      "fallback": [],
-      "preferred": [
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3-7-sonnet",
-        "openai/gpt-4o"
-      ]
-    },
-    "ux-reviewer": {
-      "fallback": [],
-      "preferred": [
-        "google/gemini-2.5-pro",
-        "anthropic/claude-3-7-sonnet",
-        "openai/gpt-4o"
-      ]
-    }
-  },
   "roster": [
     {
-      "enabled": true,
-      "id": "google/gemini-2.5-pro",
-      "provider": "google"
+      "id": "anthropic/claude-sonnet",
+      "provider": "anthropic",
+      "enabled": true
     },
     {
-      "enabled": true,
-      "id": "anthropic/claude-3-7-sonnet",
-      "provider": "anthropic"
-    },
-    {
-      "enabled": true,
-      "id": "openai/gpt-4o",
-      "provider": "openai"
+      "id": "openai-compat",
+      "provider": "openai-compat",
+      "enabled": true
     }
   ],
-  "selection_rule": "cheapest-reliable-model-that-passes-gates",
-  "version": 2
+  "roles": {
+    "accessibility-reviewer": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "architect": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "debugger": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "design-system-engineer": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "devops-engineer": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "documentation-maintainer": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "explorer": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "implementer": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "release-verifier": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "reviewer": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "security-architect": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "security-reviewer": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "tester": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    },
+    "ux-architect": {
+      "preferred": [
+        "anthropic/claude-sonnet",
+        "openai-compat"
+      ],
+      "fallback": []
+    }
+  }
 }

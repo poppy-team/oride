@@ -1,0 +1,67 @@
+{
+  "id": "design-system",
+  "name": "Design System Engineering",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Maintain unified design system components, tokens, and documentation.",
+  "risk_level": "low",
+  "modes": [
+    "implementation",
+    "review",
+    "audit",
+    "testing",
+    "documentation"
+  ],
+  "inputs": [
+    "Product requirements",
+    "Design tokens",
+    "Wireframe / UI view"
+  ],
+  "outputs": [
+    "Design specification / findings",
+    "Accessibility audit scorecard",
+    "UI tests"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [
+    "templates/wireframe-spec.md"
+  ],
+  "checks": [
+    "checks/design-system-checklist.md"
+  ],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "select": {
+    "features_any": [
+      "ui",
+      "design-system"
+    ]
+  },
+  "requires_any": [],
+  "tools": [],
+  "instructions": "---\nname: design-system\ndescription: Semantic design tokens, component contract specifications, Storybook documentation, responsive typography scales, and a11y tokens\n---\n# Design System Architecture & Tokens\n\n## 1. Semantic Design Tokens\nStructure design tokens in three tiers: Global (raw values: blue-500: #3b82f6), Semantic (intent-based: color-primary: var(--blue-500)), and Component-scoped (button-bg: var(--color-primary)).\n\n## 2. Format-Agnostic Token Distribution\nMaintain tokens in JSON format and compile them to platform targets: CSS custom properties, SCSS variables, JavaScript/TypeScript objects, and iOS/Android tokens via Style Dictionary.\n\n## 3. Component API Contract Specification\nDefine strict props, slots, and events for every design system component. Enforce variant constraints via TypeScript union types (e.g. variant: 'primary' | 'secondary' | 'ghost').\n\n## 4. Accessibility (A11y) Token Integration\nEnsure color tokens strictly satisfy WCAG 2.2 AA contrast ratios (4.5:1 for normal text, 3:1 for large text). Provide high-contrast and reduced-motion token overrides.\n\n## 5. Spacing & Fluid Typography Scales\nUse a 4px or 8px baseline grid system for all margin, padding, and layout dimensions. Implement fluid typography using clamp() to scale text smoothly across viewports.\n\n## 6. Component Composition & Headless Architecture\nSeparate component logic/state from styling. Build on accessible headless primitives (Radix UI, Headless UI, React Aria) to guarantee robust keyboard navigation and ARIA patterns.\n\n## 7. Living Documentation & Storybook Catalog\nDocument every component in Storybook with interactive states (default, hover, active, focus, disabled, error). Document component usage guidelines and anti-patterns.\n\n## 8. Visual Regression Testing Gates\nAutomate visual regression tests on Storybook stories in CI (using Chromatic or Playwright) to catch unintended styling regressions before merging.\n\n## 9. Semantic Versioning & Deprecation Lifecycle\nFollow strict semver for design system releases. Provide codemods and migration guides whenever component API signatures change or deprecations occur.\n\n## 10. Theme Switching & Dark Mode Support\nImplement dark mode and custom white-label themes via CSS class or data-theme attributes, switching semantic token variables with zero page refresh.\n"
+}

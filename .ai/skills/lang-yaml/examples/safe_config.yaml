@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-runtime-config
+  namespace: production
+data:
+  ENABLE_METRICS: "true"
+  LOG_LEVEL: "info"
+  TIMEOUT_SECONDS: "30"\n

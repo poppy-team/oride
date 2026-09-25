@@ -1,0 +1,63 @@
+{
+  "id": "motion-accessibility",
+  "name": "Motion Accessibility",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Enforce prefers-reduced-motion media query handling across all animations.",
+  "risk_level": "low",
+  "modes": [
+    "testing",
+    "implementation"
+  ],
+  "inputs": [
+    "Product requirements",
+    "Design tokens",
+    "Wireframe / UI view"
+  ],
+  "outputs": [
+    "Design specification / findings",
+    "Accessibility audit scorecard",
+    "UI tests"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [
+    "templates/wireframe-spec.md"
+  ],
+  "checks": [
+    "checks/motion-accessibility-checklist.md"
+  ],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "select": {
+    "features_any": [
+      "accessibility",
+      "ui"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

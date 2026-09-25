@@ -1,0 +1,73 @@
+{
+  "id": "process-execution-security",
+  "name": "Process Execution Security",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Enforce strict command-line argument array invocation, environment variable sanitization, and child process sandboxing.",
+  "risk_level": "high",
+  "modes": [
+    "implementation",
+    "review",
+    "audit",
+    "testing",
+    "documentation"
+  ],
+  "inputs": [
+    "Approved executable allowlist and command contract",
+    "Subprocess call sites with argument and environment handling",
+    "Runtime threat model and cancellation requirements"
+  ],
+  "outputs": [
+    "Command-execution findings with file and line evidence",
+    "Bounded subprocess implementation and cleanup policy",
+    "Injection, timeout, output, and privilege regression evidence"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/command-injection-prevention.md"
+  ],
+  "templates": [
+    "templates/process-execution-security-report.md"
+  ],
+  "checks": [
+    "checks/process-execution-security-checklist.md"
+  ],
+  "scripts": [
+    "scripts/check_subprocess_usage.sh",
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/safe_subprocess_execution.md"
+  ],
+  "required_evidence": [
+    "security-scan",
+    "test"
+  ],
+  "stop_conditions": [
+    "Unsafe shell construction is removed and every allowed process path is bounded, timed, and audited",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "process-execution",
+      "orchestration"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

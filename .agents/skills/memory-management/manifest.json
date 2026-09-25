@@ -1,0 +1,93 @@
+{
+  "id": "memory-management",
+  "name": "Native Memory Management & Allocation Architecture",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Design, implement, and verify custom memory allocators (Arenas, Pools, Slabs), cache line alignment (false sharing prevention), and ASan/Valgrind memory safety.",
+  "risk_level": "critical",
+  "modes": [
+    "implementation",
+    "review",
+    "testing",
+    "audit"
+  ],
+  "inputs": [
+    {
+      "name": "architecture_spec",
+      "type": "path",
+      "description": "Subsystem architecture and latency/throughput SLA requirements",
+      "required": true
+    },
+    {
+      "name": "memory_budget",
+      "type": "object",
+      "description": "Maximum memory envelope and cache footprint constraints",
+      "required": false
+    }
+  ],
+  "outputs": [
+    {
+      "name": "allocator_implementation",
+      "type": "diff",
+      "description": "High-performance, aligned custom memory allocator source code"
+    },
+    {
+      "name": "memory_audit_report",
+      "type": "document",
+      "description": "Memory allocation and sanitizer audit report conforming to templates/memory-management-template.md"
+    }
+  ],
+  "requires": [
+    "testing-quality"
+  ],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/memory-management-guide.md"
+  ],
+  "templates": [
+    "templates/memory-management-template.md"
+  ],
+  "checks": [
+    "checks/memory-management-invariants.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/arena_allocator.c"
+  ],
+  "required_evidence": [
+    "test",
+    "benchmark",
+    "security-scan"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Clean execution under AddressSanitizer with zero detected leaks",
+    "Token budget exhausted"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.6.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "native",
+      "low-level",
+      "systems",
+      "memory"
+    ]
+  },
+  "tools": [
+    "check-escape-hatches"
+  ]
+}

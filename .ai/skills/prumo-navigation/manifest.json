@@ -1,0 +1,51 @@
+{
+  "id": "prumo-navigation",
+  "name": "Prumo Navigation",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Navigate project documentation and find canonical information quickly.",
+  "risk_level": "low",
+  "modes": [
+    "research"
+  ],
+  "inputs": [
+    "Task requirements",
+    "System architecture",
+    "Relevant source files"
+  ],
+  "outputs": [
+    "Implementation / verification output",
+    "Evidence record"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [],
+  "checks": [],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "test"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "core": true,
+  "requires_any": [],
+  "tools": []
+}

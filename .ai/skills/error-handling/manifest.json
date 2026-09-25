@@ -1,0 +1,55 @@
+{
+  "id": "error-handling",
+  "name": "Error Handling",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Implement consistent error taxonomies, robust propagation, actionable diagnostic messages, and contextual error handling.",
+  "risk_level": "medium",
+  "modes": [
+    "implementation",
+    "review"
+  ],
+  "inputs": [
+    "Domain error types",
+    "System boundary points",
+    "Logging strategy"
+  ],
+  "outputs": [
+    "Structured error definitions",
+    "Propagation paths",
+    "Resilience tests"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [],
+  "checks": [
+    "checks/error-taxonomy-checklist.md"
+  ],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "test"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "core": true,
+  "requires_any": [],
+  "tools": []
+}

@@ -1,0 +1,70 @@
+{
+  "id": "surface-protocol-conformance",
+  "name": "Surface & Protocol Conformance",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Validate that CLI, TUI, GUI, and daemon share identical domain semantics without bypassing permissions, budgets, or error taxonomy.",
+  "risk_level": "high",
+  "modes": [
+    "testing",
+    "review"
+  ],
+  "inputs": [
+    "Protocol schemas",
+    "Client implementations",
+    "Daemon endpoints",
+    "Commands"
+  ],
+  "outputs": [
+    "Surface conformance report",
+    "Protocol drift matrix"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "process.spawn",
+    "network.client"
+  ],
+  "references": [
+    "references/surface-protocol-conformance-guide.md"
+  ],
+  "templates": [
+    "templates/surface-protocol-conformance-spec.md"
+  ],
+  "checks": [
+    "checks/surface-protocol-conformance-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/example.md"
+  ],
+  "required_evidence": [
+    "conformance",
+    "integration"
+  ],
+  "stop_conditions": [
+    "All surfaces conform to protocol",
+    "Semantic drift detected"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "surface-protocol-conformance",
+      "harness"
+    ],
+    "risk_any": [
+      "high"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

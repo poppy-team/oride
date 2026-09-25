@@ -1,0 +1,162 @@
+{
+  "version": 3,
+  "protocol": {
+    "version": 3,
+    "compatible": ">=3 <4"
+  },
+  "framework": {
+    "name": "prumo",
+    "version": "0.6.0"
+  },
+  "project": {
+    "name": "oride",
+    "title": "Oride Terminal IDE",
+    "description": "Fast, lightweight, extensible terminal IDE: editor with modal editing, embedded PTY terminal, LSP, task runner, and a pluggable theming ecosystem.",
+    "type": [
+      "cli",
+      "tui",
+      "code-editor",
+      "developer-tool"
+    ]
+  },
+  "stack": {
+    "languages": [
+      "go",
+      "rust",
+      "c",
+      "shell"
+    ],
+    "note": "Go is the target implementation (cmd/, internal/). Rust under crates/ is frozen as the differential oracle for the migration and is archived once parity is reached. C is the optional tree-sitter path behind -tags treesitter."
+  },
+  "features": [
+    "tui-editor",
+    "modal-editing",
+    "embedded-terminal",
+    "proactive-lsp",
+    "syntax-highlighting",
+    "file-explorer",
+    "git-scm",
+    "task-runner",
+    "plugins",
+    "theming",
+    "i18n-localization",
+    "splits-multicursor",
+    "markdown-rich-preview",
+    "differential-conformance"
+  ],
+  "risk": [
+    "terminal-pty-portability",
+    "lsp-path-availability",
+    "tree-sitter-c-abi",
+    "rust-to-go-parity"
+  ],
+  "quality": {
+    "performance": "high",
+    "startup": "critical",
+    "memory": "high",
+    "security": "high",
+    "accessibility": true
+  },
+  "documentation": {
+    "entrypoint": "docs/PRUMO.md",
+    "canonical_format": "markdown",
+    "source_locale": "pt-BR",
+    "site": {
+      "enabled": true,
+      "source": "docs",
+      "generated": true,
+      "public_internal_views": true
+    },
+    "audiences": [
+      "user",
+      "developer",
+      "operations",
+      "agent"
+    ],
+    "virtual_chunking": true
+  },
+  "context": {
+    "methodology": "lean-progressive-context",
+    "architecture": "progressive-context-architecture",
+    "mode": "progressive",
+    "budget_profile": "medium",
+    "profiles": {
+      "small": {
+        "context_target_tokens": 3000,
+        "context_hard_tokens": 6000,
+        "output_target_tokens": 500,
+        "output_hard_tokens": 1000,
+        "max_expansion_rounds": 1,
+        "max_delegation_depth": 0
+      },
+      "medium": {
+        "context_target_tokens": 8000,
+        "context_hard_tokens": 16000,
+        "output_target_tokens": 1500,
+        "output_hard_tokens": 3000,
+        "max_expansion_rounds": 2,
+        "max_delegation_depth": 1
+      },
+      "large": {
+        "context_target_tokens": 16000,
+        "context_hard_tokens": 32000,
+        "output_target_tokens": 3000,
+        "output_hard_tokens": 6000,
+        "max_expansion_rounds": 3,
+        "max_delegation_depth": 1
+      }
+    },
+    "deep_recursion": {
+      "enabled": false,
+      "experimental": true
+    },
+    "runtime": {
+      "database": ".prumo/runtime/prumo.db",
+      "completed_context_ttl": "0d",
+      "failed_context_ttl": "7d"
+    }
+  },
+  "intelligence": {
+    "enabled": true,
+    "path": ".prumo/history/project-intelligence.json",
+    "task_reports": true,
+    "track_input_tokens": true,
+    "track_output_tokens": true,
+    "track_cost": true,
+    "distinguish_observed_estimated": true
+  },
+  "orchestration": {
+    "protocol": "POP",
+    "orchestrator": "prumo",
+    "autonomy": "agentic"
+  },
+  "goals": {
+    "active_phase": "M0",
+    "active_goal": null
+  },
+  "ai": {
+    "orchestrator": "prumo",
+    "autonomy": "agentic",
+    "preferred_models": [
+      {
+        "id": "anthropic/claude-sonnet",
+        "provider": "anthropic"
+      },
+      {
+        "id": "openai-compat",
+        "provider": "openai-compat"
+      }
+    ]
+  },
+  "ui": {
+    "interface_map": {
+      "enabled": true,
+      "targets": [
+        "developer",
+        "site",
+        "agent"
+      ],
+      "derivation": "verify-only"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "git-workflow",
+  "name": "Git Workflow",
+  "version": 1,
+  "schema_version": 2,
+  "core": true,
+  "purpose": "Keep changes isolated, reviewable and traceable.",
+  "risk_level": "low",
+  "modes": [
+    "implementation"
+  ],
+  "requires_any": [],
+  "tools": [],
+  "provenance": {
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  }
+}

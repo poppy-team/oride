@@ -1,20 +1,82 @@
 {
   "id": "git-workflow",
-  "name": "Git Workflow",
-  "version": 1,
-  "schema_version": 2,
+  "name": "Git Workflow, Branching & Evidence-Backed Review",
   "core": true,
-  "purpose": "Keep changes isolated, reviewable and traceable.",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Keep changes isolated, reviewable, and traceable with focused branches or worktrees, small conventional commits, secret-free history, and pull requests carrying test evidence and acceptance mapping.",
   "risk_level": "low",
   "modes": [
-    "implementation"
+    "implementation",
+    "review",
+    "audit"
   ],
-  "requires_any": [],
-  "tools": [],
+  "inputs": [
+    "Active Goal or task definition with acceptance criteria the branch must satisfy",
+    "Base branch and remote state (status, recent log, fetch freshness)",
+    "Repository conventions: commit format, maximum change size, required reviewers",
+    "Worktree or branch naming scheme for the change"
+  ],
+  "outputs": [
+    "Merged change on the base branch as one traceable unit",
+    "PR documentation: scope, acceptance mapping, coverage delta, risk and rollback notes",
+    "Clean local state: branch deleted, worktree pruned, history invariants intact"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/git-workflow-guide.md"
+  ],
+  "templates": [
+    "templates/git-workflow-spec.md"
+  ],
+  "checks": [
+    "checks/git-workflow-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "PR merged with required approvals, green CI, and acceptance criteria mapped to evidence",
+    "Change formally rejected in review with recorded rationale and follow-ups filed",
+    "Worktree and branch cleaned up with nothing unpushed or stashed",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
   "provenance": {
-    "source": "project-atlas-framework",
-    "version": "0.3.0",
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
     "checksum": "",
-    "modified": "2026-08-14"
-  }
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "project_types": [
+      "api",
+      "web-saas",
+      "cli",
+      "library"
+    ],
+    "features_any": [
+      "git",
+      "branching",
+      "pull-request",
+      "code-review",
+      "traceability",
+      "worktree"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
 }

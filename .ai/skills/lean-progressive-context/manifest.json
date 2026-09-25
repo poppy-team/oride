@@ -1,0 +1,52 @@
+{
+  "id": "lean-progressive-context",
+  "name": "Lean Progressive Context",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Select the smallest sufficient context for a task under strict token budgets.",
+  "risk_level": "low",
+  "modes": [
+    "research",
+    "implementation"
+  ],
+  "inputs": [
+    "Task requirements",
+    "System architecture",
+    "Relevant source files"
+  ],
+  "outputs": [
+    "Implementation / verification output",
+    "Evidence record"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [],
+  "checks": [],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "test"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "core": true,
+  "requires_any": [],
+  "tools": []
+}

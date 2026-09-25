@@ -1,0 +1,67 @@
+{
+  "id": "visual-regression",
+  "name": "Visual Regression Testing",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Capture deterministic visual snapshots and detect unexpected layout shifts.",
+  "risk_level": "low",
+  "modes": [
+    "implementation",
+    "review",
+    "audit",
+    "testing",
+    "documentation"
+  ],
+  "inputs": [
+    "Product requirements",
+    "Design tokens",
+    "Wireframe / UI view"
+  ],
+  "outputs": [
+    "Design specification / findings",
+    "Accessibility audit scorecard",
+    "UI tests"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [
+    "templates/wireframe-spec.md"
+  ],
+  "checks": [
+    "checks/visual-regression-checklist.md"
+  ],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "select": {
+    "features_any": [
+      "ui",
+      "visual-qa"
+    ]
+  },
+  "requires_any": [],
+  "tools": [],
+  "instructions": "---\nname: visual-regression\ndescription: Pixel-by-pixel snapshot testing, Playwright integration, dynamic content masking, deterministic font rendering, and cross-browser CI gates\n---\n# Automated Visual Regression Testing\n\n## 1. Deterministic Environment Configuration\nRun visual regression tests in standardized Docker containers to eliminate OS-level font antialiasing and sub-pixel rendering discrepancies across local and CI machines.\n\n## 2. Playwright & Tooling Integration\nIntegrate automated snapshot testing using Playwright (expect(page).toHaveScreenshot()) or pixelmatch. Capture full-page and component-level screenshots across standard viewports (Mobile, Tablet, Desktop).\n\n## 3. Dynamic Content Masking\nMask dynamic, fluctuating, or time-dependent UI elements (timestamps, user avatars, animated banners, random IDs) before snapshot capture using test locator masks.\n\n## 4. Animation & Transition Freezing\nDisable all CSS animations, smooth scrolling, and transitions during test runs (prefers-reduced-motion: reduce) to guarantee capture of static, fully settled layouts.\n\n## 5. Font & Web Asset Loading Gates\nWait for document.fonts.ready and all critical images to finish loading prior to taking snapshots to prevent capturing half-rendered typography or layout shifts.\n\n## 6. Configurable Thresholds & Tolerance\nSet strict but realistic pixel-diff tolerance thresholds (e.g. maxDiffPixelRatio: 0.001). Distinguish between acceptable anti-aliasing variations and true visual regressions.\n\n## 7. Side-by-Side Diff Artifact Reporting\nGenerate visual failure reports presenting Baseline, Current, and Diff images with highlighted pixel changes. Publish reports as CI artifacts on failed runs.\n\n## 8. Approval & Baseline Update Workflows\nEstablish a controlled command workflow for updating baseline images (e.g. prumo test visual --update-snapshots) only when intentional UI updates are committed.\n\n## 9. Component-Level Isolation Testing\nTest visual snapshots of isolated component states in Storybook before testing complex end-to-end user journeys to isolate styling regressions rapidly.\n\n## 10. Cross-Browser & DPI Coverage\nVerify visual rendering across Chromium, Firefox, and WebKit rendering engines at both 1x and high-DPI (2x retina) pixel densities.\n"
+}

@@ -1,0 +1,72 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "primitive": {
+      "blue": {
+        "50": { "$value": "#eff6ff", "$type": "color" },
+        "500": { "$value": "#3b82f6", "$type": "color" },
+        "600": { "$value": "#2563eb", "$type": "color" },
+        "900": { "$value": "#1e3a8a", "$type": "color" }
+      },
+      "slate": {
+        "50": { "$value": "#f8fafc", "$type": "color" },
+        "100": { "$value": "#f1f5f9", "$type": "color" },
+        "800": { "$value": "#1e293b", "$type": "color" },
+        "900": { "$value": "#0f172a", "$type": "color" }
+      }
+    }
+  },
+  "spacing": {
+    "primitive": {
+      "1": { "$value": "0.25rem", "$type": "dimension" },
+      "2": { "$value": "0.5rem", "$type": "dimension" },
+      "4": { "$value": "1rem", "$type": "dimension" },
+      "8": { "$value": "2rem", "$type": "dimension" }
+    }
+  },
+  "semantic": {
+    "light": {
+      "surface": {
+        "canvas": { "$value": "{color.primitive.slate.50}", "$type": "color" },
+        "card": { "$value": "#ffffff", "$type": "color" }
+      },
+      "text": {
+        "primary": { "$value": "{color.primitive.slate.900}", "$type": "color" },
+        "muted": { "$value": "{color.primitive.slate.800}", "$type": "color" }
+      },
+      "action": {
+        "primary": {
+          "default": { "$value": "{color.primitive.blue.600}", "$type": "color" },
+          "hover": { "$value": "{color.primitive.blue.900}", "$type": "color" },
+          "text": { "$value": "#ffffff", "$type": "color" }
+        }
+      }
+    },
+    "dark": {
+      "surface": {
+        "canvas": { "$value": "{color.primitive.slate.900}", "$type": "color" },
+        "card": { "$value": "{color.primitive.slate.800}", "$type": "color" }
+      },
+      "text": {
+        "primary": { "$value": "{color.primitive.slate.50}", "$type": "color" },
+        "muted": { "$value": "{color.primitive.slate.100}", "$type": "color" }
+      },
+      "action": {
+        "primary": {
+          "default": { "$value": "{color.primitive.blue.500}", "$type": "color" },
+          "hover": { "$value": "{color.primitive.blue.600}", "$type": "color" },
+          "text": { "$value": "#ffffff", "$type": "color" }
+        }
+      }
+    }
+  },
+  "component": {
+    "button": {
+      "primary": {
+        "background": { "$value": "{semantic.light.action.primary.default}", "$type": "color" },
+        "text": { "$value": "{semantic.light.action.primary.text}", "$type": "color" },
+        "padding": { "$value": "{spacing.primitive.4}", "$type": "dimension" }
+      }
+    }
+  }
+}

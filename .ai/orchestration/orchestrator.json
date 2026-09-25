@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "primary": "atlas",
-  "protocol": "project-orchestration-protocol-v2",
+  "primary": "prumo",
+  "protocol": "POP",
   "autonomy": "agentic",
   "source_of_truth": "repository",
   "context_methodology": "LPC"

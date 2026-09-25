@@ -1,25 +1,26 @@
-# Testing Quality — Deliverable Template
+# Testing Quality Delivery Record
 
-## 1. Metadata
-- **Skill**:  (Testing Quality)
-- **Date**: YYYY-MM-DD
-- **Author / Agent**: [Agent Identifier]
-- **Target Goal / Phase**: [Goal ID]
+## Metadata
+- Skill: Testing Quality
+- Date: 2026-09-23
+- Author: quality-agent
+- Goal: TEST-31 — protect checkout idempotency
 
-## 2. Executive Summary
-[Brief description of the activity performed, rationale, and primary outcomes]
+## Pyramid
+- Unit: 126 tests for amount parsing, policy decisions, and error mapping.
+- Integration: 18 tests against PostgreSQL and the payment adapter.
+- E2E: 3 critical checkout journeys on Chromium and WebKit.
 
-## 3. Inputs & Scope
-- **Inputs Evaluated**: Feature requirements / acceptance criteria, Target implementation, Test framework
-- **Artifacts Modified**: [List of modified files]
+## Regression Case
+- Test: `test_duplicate_checkout_is_idempotent`
+- Seed: `checkout-2026-09-23`
+- Baseline: failed before the idempotency-key fix
+- Current: passes consistently across 10 isolated runs
 
-## 4. Key Findings & Implementation Details
-[Detailed technical notes, decisions, and structural changes made]
+## Quality Evidence
+- No test reaches the public network; the adapter is replaced by a deterministic fake.
+- Business-logic line coverage is 91%; the threshold is 85%.
+- Time and random sources are injected, so failures are reproducible.
 
-## 5. Verification & Evidence
-- **Evidence Type**: test
-- **Test Results**: [Passed / Summary of runs]
-- **Static Analysis Status**: [Pass / Clean]
-
-## 6. Next Steps & Handoff
-- [Immediate follow-up actions or downstream task dependencies]
+## Follow-Up
+- Add a mutation check for the retry branch in the next quality slice.

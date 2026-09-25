@@ -1,0 +1,61 @@
+{
+  "id": "editor-tooling",
+  "name": "Editor Tooling & UI",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Implement desktop engine editors, scene inspectors, and gizmo overlays.",
+  "risk_level": "low",
+  "modes": [
+    "implementation"
+  ],
+  "inputs": [
+    "Engine architecture specification",
+    "Target hardware / GPU constraints",
+    "Benchmark fixtures"
+  ],
+  "outputs": [
+    "Optimized engine subsystem",
+    "Deterministic benchmark evidence",
+    "Visual test fixtures"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [],
+  "checks": [
+    "checks/editor-tooling-invariants.md"
+  ],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "benchmark"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "select": {
+    "features_any": [
+      "editor",
+      "tooling",
+      "code-editor"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

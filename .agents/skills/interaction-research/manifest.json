@@ -1,0 +1,76 @@
+{
+  "id": "interaction-research",
+  "name": "Interaction & User Experience Research (UXR)",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Plan, conduct, analyze, and synthesize empirical user experience research, usability testing protocols, and standardized metrics (SUS, SEQ, Completion Rate).",
+  "risk_level": "low",
+  "modes": [
+    "research",
+    "review",
+    "audit",
+    "design"
+  ],
+  "inputs": [
+    "Research objectives & hypotheses",
+    "Target user personas / cohorts",
+    "UI prototypes / wireframes / live applications",
+    "Active task acceptance criteria"
+  ],
+  "outputs": [
+    "Usability study protocols",
+    "Quantitative usability scorecards (SUS, SEQ, TCR)",
+    "Thematic behavioral findings",
+    "Prioritized design and engineering recommendations"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/interaction-research-guide.md"
+  ],
+  "templates": [
+    "templates/user-research-protocol.md"
+  ],
+  "checks": [
+    "checks/interaction-research-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/usability_test_study.md"
+  ],
+  "required_evidence": [
+    "review"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "All research sessions completed and scored with standard metrics",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "ux",
+      "research",
+      "usability",
+      "testing",
+      "uxr"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

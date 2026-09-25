@@ -7,18 +7,91 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  GOTOOLCHAIN: local
 
 jobs:
-  test:
+  # The Rust implementation is frozen as the differential oracle. This job keeps
+  # it honest in its own right, and produces the binary the parity gate drives.
+  rust:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: rust-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
       - name: fmt
         run: cargo fmt --all -- --check
       - name: clippy
         run: cargo clippy --all-targets -- -D warnings
       - name: test
         run: cargo test --workspace
+      # Built explicitly, and cached: `cargo test` does not refresh the binary
+      # in target/debug, so a stale oracle would silently make the parity gate
+      # compare the Go implementation against the previous Rust revision.
+      - name: build the oracle
+        run: cargo build -p oride
+
+  # The Go implementation, checked without the oracle. The differential tests
+  # skip here and say so — a skip is visible, an assumed pass is not.
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      # Escopo explícito: `.ai/` e `.agents/` carregam conteúdo instalado pelo
+      # Prumo, e os exemplos Go das skills não passam gofmt. Varrer a árvore
+      # inteira faria o gate de formatação falhar por código que não é nosso.
+      - name: gofmt
+        run: |
+          unformatted="$(gofmt -l cmd internal conformance)"
+          if [ -n "$unformatted" ]; then
+            echo "arquivos fora do gofmt:"
+            echo "$unformatted"
+            exit 1
+          fi
+      - name: generated tables are in sync with the Rust canonical source
+        run: python3 scripts/gen-tables.py --check
+      - name: vet
+        run: go vet ./...
+      - name: staticcheck
+        run: go run honnef.co/go/tools/cmd/staticcheck@v0.8.1 ./...
+      # The shipped binary is CGO-free, so the build proves it on every change
+      # rather than discovering it at release time.
+      - name: build (no cgo)
+        run: CGO_ENABLED=0 go build ./...
+      - name: test
+        run: go test -race ./...
+
+  # The parity gate. Both implementations, one suite: the same case replayed
+  # against each, compared without tolerance.
+  conformance:
+    needs: [rust, go]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: rust-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+      - name: build the oracle
+        run: cargo build -p oride
+      - name: differential parity
+        run: go test -race ./conformance/...

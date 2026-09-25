@@ -1,0 +1,67 @@
+{
+  "id": "github-ci-debug",
+  "name": "GitHub CI Debugging",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Diagnose and fix GitHub Actions workflow failures, matrix mismatches, and flaky pipeline steps.",
+  "risk_level": "medium",
+  "modes": [
+    "implementation",
+    "testing"
+  ],
+  "inputs": [
+    "Failing GitHub Actions run URL and first error log",
+    "Workflow YAML, matrix definition, and runner image",
+    "Last green run, dependency changes, and cache keys"
+  ],
+  "outputs": [
+    "Linked CI diagnosis with first error and failure classification",
+    "Minimal workflow or source fix with reproduction evidence",
+    "Green rerun confirmation and recurrence-hardening record"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/github-ci-debug-guide.md"
+  ],
+  "templates": [
+    "templates/issue-template.md"
+  ],
+  "checks": [
+    "checks/github-ci-debug-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "The previously failing job is green with linked cause, minimal fix, and hardening evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "github",
+      "ci-cd"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

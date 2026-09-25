@@ -1,0 +1,85 @@
+{
+  "id": "project-documentation-architect",
+  "name": "Project Documentation Architect",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Build and maintain implementation-ready bilingual living project documentation with least-workforce orchestration across GENESIS, ADOPTION, and DELTA modes.",
+  "risk_level": "low",
+  "modes": [
+    "documentation",
+    "research",
+    "review",
+    "audit"
+  ],
+  "inputs": [
+    "User intent or project briefing",
+    "Repository snapshot (ADOPTION/DELTA)",
+    "Existing docs/project-docs.json manifest when present"
+  ],
+  "outputs": [
+    "docs/project-docs.json manifest",
+    "Canonical en-US documents plus synchronized pt-BR versions",
+    "Documentation delta record",
+    "Handoff microcontexts"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/modes.md",
+    "references/profiles.md",
+    "references/bilingual.md",
+    "references/orchestration.md"
+  ],
+  "templates": [
+    "templates/project-docs.json",
+    "templates/adr.md",
+    "templates/microcontext.md"
+  ],
+  "checks": [
+    "checks/pre-flight.md",
+    "checks/post-flight.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/tiny-cli.md"
+  ],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "Required contracts at implementation-ready with acceptance criteria",
+    "No unresolved CONTRADICTION records",
+    "Required pt-BR pairs at CURRENT or IN_REVIEW",
+    "Token budget exhausted",
+    "Blocked on missing source or human decision"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "Apache-2.0",
+    "source": "prumo",
+    "version": "0.6.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "documentation",
+      "architecture",
+      "onboarding",
+      "greenfield",
+      "adoption",
+      "handoff",
+      "localization"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

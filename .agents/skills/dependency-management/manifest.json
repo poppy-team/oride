@@ -1,8 +1,8 @@
 {
   "id": "dependency-management",
   "name": "Dependency Management",
-  "version": 1,
-  "schema_version": 2,
+  "version": 2,
+  "schema_version": 3,
   "purpose": "Manage dependency surface, verify provenance, pin versions, and audit transitive security advisories.",
   "risk_level": "medium",
   "modes": [
@@ -26,29 +26,38 @@
     "filesystem.write",
     "process.spawn"
   ],
-  "references": [],
-  "templates": [],
+  "references": [
+    "references/dependency-injection-principles.md"
+  ],
+  "templates": [
+    "templates/dependency-management-template.md"
+  ],
   "checks": [
     "checks/dependency-audit.md"
   ],
-  "scripts": [],
-  "examples": [],
+  "scripts": [
+    "scripts/verify.sh",
+    "scripts/detect_cycles.sh"
+  ],
+  "examples": [
+    "examples/di_container_example.md"
+  ],
   "required_evidence": [
     "security-scan",
     "build"
   ],
   "stop_conditions": [
-    "Task acceptance criteria satisfied with evidence",
-    "Token budget exhausted",
-    "Blocked on external dependency"
+    "No unresolved critical or high advisory, provenance, or license violation remains",
+    "Lockfile is reproducible and every direct dependency has an owner and upgrade policy",
+    "Token budget exhausted or registry and advisory evidence is unavailable"
   ],
   "provenance": {
     "origin": "framework",
     "license": "MIT",
-    "source": "project-atlas-framework",
-    "version": "0.3.0",
+    "source": "prumo",
+    "version": "0.4.0",
     "checksum": "",
-    "modified": "2026-08-14"
+    "modified": "2026-09-23"
   },
   "core": true,
   "requires_any": [],

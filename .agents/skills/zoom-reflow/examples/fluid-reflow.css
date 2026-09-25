@@ -1,0 +1,147 @@
+/**
+ * Fluid Reflow and Zoom-Compliant Layout Stylesheet
+ * WCAG 2.2 SC 1.4.4 (Resize Text 200%) & SC 1.4.10 (Reflow 400% / 320px)
+ */
+
+:root {
+  /* Fluid typography clamped to prevent horizontal clipping */
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-lg: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --font-size-h1: clamp(1.75rem, 1.25rem + 2vw, 2.5rem);
+
+  /* Fluid Spacing */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: clamp(1rem, 2vw, 2rem);
+
+  /* Target sizes */
+  --min-touch-target: 44px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 100%; /* Respects user agent font size scaling */
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: #1a1a1a;
+  background-color: #ffffff;
+  overflow-x: hidden; /* Fallback guard against rogue elements */
+  min-height: 100vh;
+}
+
+/* Container never exceeds viewport width and avoids fixed absolute widths */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+}
+
+/* Fluid Auto-Fitting Grid: collapses gracefully to 1 column at 320px */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow-wrap: break-word; /* Prevents overflow from long uninterrupted strings */
+  word-break: break-word;
+}
+
+.card h2 {
+  font-size: var(--font-size-lg);
+  line-height: 1.3;
+  margin-bottom: var(--space-xs);
+}
+
+/* Flex Toolbar that wraps cleanly without overflow at 320px */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+}
+
+.toolbar .search-box {
+  flex: 1 1 200px;
+  min-width: 0; /* Enables flex item shrinking below content min-width */
+}
+
+.toolbar input[type="text"] {
+  width: 100%;
+  min-height: var(--min-touch-target);
+  padding: 0.5rem 0.75rem;
+  font-size: var(--font-size-base);
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--min-touch-target);
+  min-width: var(--min-touch-target);
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  border: 1px solid #0f172a;
+  background-color: #0f172a;
+  color: #ffffff;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: normal; /* Permits button text wrapping when zoomed */
+  text-align: center;
+}
+
+/* Accessible Horizontal Scrollable Region for Tables/Code Blocks (SC 1.4.10 Exception) */
+.table-scroll-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  margin-top: var(--space-md);
+}
+
+.table-scroll-container:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+table {
+  width: 100%;
+  min-width: 500px; /* Requires horizontal scrolling on small screens */
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}

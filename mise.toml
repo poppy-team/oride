@@ -1,2 +1,5 @@
 [tools]
+# O oráculo Rust (crates/) e a implementação Go (cmd/, internal/) convivem
+# durante a migração, então as duas toolchains ficam pinadas juntas.
+go = "1.26"
 odin = "latest"

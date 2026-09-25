@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "id": "item-12345",
+  "name": "Widget Alpha",
+  "quantity": 100,
+  "unit_price_cents": 2500,
+  "active": true
+}\n

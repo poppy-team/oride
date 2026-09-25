@@ -1,0 +1,66 @@
+{
+  "id": "cognitive-clarity",
+  "name": "Cognitive Clarity & Neurodivergent Communication",
+  "version": 1,
+  "schema_version": 2,
+  "core": true,
+  "purpose": "Enforce explicit, unambiguous, low-cognitive-load communication and structured technical execution tailored for neurodivergent collaboration.",
+  "risk_level": "low",
+  "modes": [
+    "implementation",
+    "review",
+    "research",
+    "design",
+    "documentation"
+  ],
+  "inputs": [
+    "User instructions",
+    "Task goals",
+    "Code context"
+  ],
+  "outputs": [
+    "Structured action plans",
+    "Direct and literal technical outputs",
+    "Clarity audit scorecard"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write"
+  ],
+  "references": [],
+  "templates": [
+    "templates/structured-response.md"
+  ],
+  "checks": [
+    "checks/clarity-checklist.md"
+  ],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "review"
+  ],
+  "stop_conditions": [
+    "Task completed with explicit next steps",
+    "Ambiguity resolved through targeted single question",
+    "Cognitive overwhelm threshold reached"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.5.1",
+    "checksum": "",
+    "modified": "2026-09-10"
+  },
+  "select": {
+    "features_any": [
+      "communication",
+      "accessibility",
+      "team-collaboration"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

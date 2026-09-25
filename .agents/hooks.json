@@ -2,13 +2,13 @@
   "hooks": {
     "session.end": [
       {
-        "exec": "atlas doctor --json",
+        "exec": "prumo doctor --json",
         "type": "command"
       }
     ],
     "session.start": [
       {
-        "exec": "atlas status --json",
+        "exec": "prumo status --json",
         "type": "command"
       }
     ],

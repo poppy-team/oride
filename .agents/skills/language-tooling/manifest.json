@@ -1,0 +1,79 @@
+{
+  "id": "language-tooling",
+  "name": "Language Tooling & LSP",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Integrate, configure, and verify LSP and DAP language tooling: JSON-RPC lifecycle, capability negotiation, semantic queries, diagnostics, formatting, code actions, and debug sessions with measured latency budgets.",
+  "risk_level": "medium",
+  "modes": [
+    "implementation",
+    "design",
+    "testing",
+    "documentation"
+  ],
+  "inputs": [
+    "Target languages with pinned language-server versions and transport (stdio or TCP)",
+    "Client capability set: snippet support, pull vs push diagnostics, file watching",
+    "Latency budgets: startup under 2 s, hover p95 under 150 ms, completion p95 under 300 ms",
+    "Workspace root with served globs and excluded paths for generated and vendored code"
+  ],
+  "outputs": [
+    "Initialized LSP session with negotiated capabilities and synchronized workspace",
+    "Verified semantic query path for hover, definition, references, symbols, and formatting",
+    "Proven DAP launch and breakpoint flow with clean teardown plus latency report"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/language-tooling-guide.md"
+  ],
+  "templates": [
+    "templates/language-tooling-spec.md"
+  ],
+  "checks": [
+    "checks/language-tooling-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [],
+  "required_evidence": [
+    "test"
+  ],
+  "stop_conditions": [
+    "All latency budgets met with zero protocol errors on the replay script",
+    "Formatting proven idempotent and rename proven cross-file on the sample workspace",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "project_types": [
+      "api",
+      "web-app",
+      "cli",
+      "ide-plugin"
+    ],
+    "features_any": [
+      "lsp",
+      "dap",
+      "language-server",
+      "diagnostics",
+      "formatting"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

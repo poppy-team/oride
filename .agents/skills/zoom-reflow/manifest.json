@@ -1,0 +1,75 @@
+{
+  "id": "zoom-reflow",
+  "name": "Zoom & Reflow Testing",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Verify layouts reflow without horizontal scroll at 400% zoom (320px viewport) and text resizes up to 200% without clipping or content loss.",
+  "risk_level": "low",
+  "modes": [
+    "testing",
+    "audit",
+    "review",
+    "implementation"
+  ],
+  "inputs": [
+    "Product requirements",
+    "Design tokens",
+    "Wireframe / UI view",
+    "CSS stylesheets / component layout definitions"
+  ],
+  "outputs": [
+    "Design specification / findings",
+    "Accessibility audit scorecard",
+    "UI tests",
+    "Fluid reflow remediation styles"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/zoom-reflow-guide.md"
+  ],
+  "templates": [
+    "templates/zoom-reflow-report.md"
+  ],
+  "checks": [
+    "checks/zoom-reflow-checklist.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/fluid-reflow.css"
+  ],
+  "required_evidence": [
+    "test",
+    "review"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "features_any": [
+      "accessibility",
+      "ui",
+      "frontend",
+      "css"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

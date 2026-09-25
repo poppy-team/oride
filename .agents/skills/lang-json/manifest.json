@@ -1,0 +1,77 @@
+{
+  "id": "lang-json",
+  "name": "JSON RFC 8259 Compliance, Schema Contracts & Injection Prevention",
+  "version": 2,
+  "schema_version": 3,
+  "purpose": "Enforce strict RFC 8259 JSON compliance, JSON Schema contract validation, numeric precision limits (IEEE 754 64-bit float safety), canonical serialization, and zero comments/trailing commas.",
+  "risk_level": "low",
+  "modes": [
+    "implementation",
+    "review",
+    "testing"
+  ],
+  "inputs": [
+    "Source code",
+    "Schema/Configuration",
+    "Task acceptance criteria"
+  ],
+  "outputs": [
+    "Conforming source code/configuration",
+    "Verification evidence"
+  ],
+  "requires": [
+    "clean-code",
+    "testing-quality"
+  ],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/json-schema-contracts.md"
+  ],
+  "templates": [
+    "templates/json-validation-report.md"
+  ],
+  "checks": [
+    "checks/json-rules.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/canonical_payload.json"
+  ],
+  "required_evidence": [
+    "lint",
+    "schema-validation"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "JSON Schema validation clean",
+    "Token budget exhausted"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-23"
+  },
+  "select": {
+    "stack_any": [
+      "json",
+      "rfc8259",
+      "schema",
+      "rest",
+      "config"
+    ]
+  },
+  "requires_any": [],
+  "tools": [
+    "check-escape-hatches"
+  ]
+}
