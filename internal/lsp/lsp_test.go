@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -186,6 +187,26 @@ type stub struct {
 	toClient   *io.PipeWriter
 	fromClient *io.PipeReader
 	client     *Client
+
+	// mu guards seen. The stub records on its own goroutine while the test
+	// reads, so an unguarded map is a data race — and a race that the detector
+	// only catches under load is still a real defect, not a flaky test.
+	mu   sync.Mutex
+	seen map[string]int
+}
+
+// record counts one request, from the stub's goroutine.
+func (s *stub) record(method string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.seen[method]++
+}
+
+// count reports how many times a method was requested.
+func (s *stub) count(method string) int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.seen[method]
 }
 
 // newStub wires a client to a reader that answers with the given handler.
@@ -202,6 +223,8 @@ func newStub(t *testing.T, handler func(method string, params json.RawMessage) (
 		_ = serverToClient.Close()
 	})
 
+	server := &stub{toClient: serverToClient, fromClient: serverFromClient, client: client, seen: map[string]int{}}
+
 	go func() {
 		for {
 			raw, err := ReadMessage(serverFromClient)
@@ -216,6 +239,8 @@ func newStub(t *testing.T, handler func(method string, params json.RawMessage) (
 			if err := json.Unmarshal(raw, &envelope); err != nil {
 				continue
 			}
+			server.record(envelope.Method)
+
 			result, respond := handler(envelope.Method, envelope.Params)
 			if !respond || envelope.ID == nil {
 				continue
@@ -228,14 +253,12 @@ func newStub(t *testing.T, handler func(method string, params json.RawMessage) (
 		}
 	}()
 
-	return &stub{toClient: serverToClient, fromClient: serverFromClient, client: client}
+	return server
 }
 
 // TestClientHandshakeAndRequest drives the client end to end through a pipe.
 func TestClientHandshakeAndRequest(t *testing.T) {
-	seen := map[string]int{}
 	server := newStub(t, func(method string, params json.RawMessage) (any, bool) {
-		seen[method]++
 		switch method {
 		case "initialize":
 			return map[string]any{"capabilities": map[string]any{}}, true
@@ -291,8 +314,8 @@ func TestClientHandshakeAndRequest(t *testing.T) {
 	if err := server.client.Shutdown(ctx); err != nil {
 		t.Fatalf("Shutdown: %v", err)
 	}
-	if seen["initialize"] != 1 {
-		t.Errorf("initialize chamado %d vezes", seen["initialize"])
+	if got := server.count("initialize"); got != 1 {
+		t.Errorf("initialize chamado %d vezes", got)
 	}
 }
 

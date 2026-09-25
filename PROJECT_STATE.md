@@ -31,10 +31,27 @@
 - ✅ **`docs/architecture/overview.md`** (PT + EN) corrigido: descrevia `Ropey` e
   `Ratatui`/`Crossterm`, nenhum dos três usado pelo produto em Go.
 
-### M3.1 — Decomposição do modelo · próximo
+### M3.1 — Registry de comandos · **completo**
 
-`App` (63 campos planos) vira composição de sub-estados coesos; o `switch` de
-`Apply` vira registry por domínio; `StateDump` e `SchemaVersion` **não mudam**.
+**Correção ao plano:** os 63 campos planos são do `App` **Rust**. O `App` em Go
+tem 11 campos e 657 linhas — então esta fatia não foi decompor um God struct, e
+sim **estruturar antes de crescer**. Criar sub-estados vazios agora seria
+abstração especulativa (§1.6); eles nascem na fatia que os faz ter comportamento.
+
+- ✅ O `switch` de 31 braços virou **tabela por domínio** (`command_file.go`,
+  `command_edit.go`, `command_movement.go`, `command_selection.go`,
+  `command_view.go`), composta em `command.go`. **33 ações** registradas.
+- ✅ `NeedsDocument` é declarado, não inferido: a palette precisa da mesma
+  resposta, e num lugar só o despacho e a palette não podem discordar.
+- ✅ Os 16 movimentos vêm de 8 direções × 2 variantes — mesma operação com flag de
+  seleção, não coincidência estrutural.
+- ✅ **Gate da fatia verde:** `TestGoMatchesTheOracle` e os 10 casos byte a byte
+  inalterados. A refatoração não mudou comportamento observável.
+- ✅ Guardas contra regressão silenciosa: a lista das 33 ações que o switch
+  atendia, canonicalidade de cada id registrado, e as duas direções de
+  `NeedsDocument`.
+
+### Próximo — M3.2: esqueleto Bubble Tea
 
 ## Onde o projeto está
 

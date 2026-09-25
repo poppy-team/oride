@@ -132,96 +132,27 @@ func (a *App) indent(document *editor.Document) error {
 }
 
 // Apply dispatches one action.
+//
+// The lookup is the whole dispatch. The domain table says whether the action
+// exists and whether it needs a document, so the document is resolved once here
+// rather than in every handler — and a handler that does not need one keeps
+// working with an empty store, which is what lets someone toggle the tree or
+// quit before opening a file.
 func (a *App) Apply(bound action.Action) error {
-	// Actions that do not touch a document are handled before the lookup, so an
-	// empty store does not turn them into an error.
-	switch bound {
-	case action.Quit:
-		a.Quit = true
-		return nil
-	case action.Save, action.SaveAs, action.SaveAll:
-		return a.markSaved()
-	case action.ToggleTree:
-		a.ShowTree = !a.ShowTree
-		return nil
-	case action.FocusTree:
-		a.Focus = FocusTree
-		return nil
-	case action.FocusEditor:
-		a.Focus = FocusEditor
-		return nil
+	handler, known := commands[bound]
+	if !known {
+		return fmt.Errorf("%w: %s", ErrNotImplemented, bound)
+	}
+
+	if !handler.NeedsDocument {
+		return handler.Apply(a, nil)
 	}
 
 	document, err := a.Store.Active()
 	if err != nil {
 		return err
 	}
-
-	switch bound {
-	case action.Undo:
-		_, err := document.Undo()
-		return err
-	case action.Redo:
-		_, err := document.Redo()
-		return err
-
-	case action.InsertNewline:
-		return document.InsertText("\n")
-	case action.InsertTab:
-		return a.indent(document)
-	case action.Backspace:
-		return document.Backspace()
-	case action.Delete:
-		return document.DeleteForward()
-
-	case action.MoveLeftPlain:
-		return document.MoveLeft(false)
-	case action.MoveRightPlain:
-		return document.MoveRight(false)
-	case action.MoveUpPlain:
-		return document.MoveUp(false)
-	case action.MoveDownPlain:
-		return document.MoveDown(false)
-	case action.MoveLineStartPlain:
-		return document.MoveLineStart(false)
-	case action.MoveLineEndPlain:
-		return document.MoveLineEnd(false)
-	case action.MoveDocStartPlain:
-		return document.MoveBufferStart(false)
-	case action.MoveDocEndPlain:
-		return document.MoveBufferEnd(false)
-
-	case action.MoveLeftExtend:
-		return document.MoveLeft(true)
-	case action.MoveRightExtend:
-		return document.MoveRight(true)
-	case action.MoveUpExtend:
-		return document.MoveUp(true)
-	case action.MoveDownExtend:
-		return document.MoveDown(true)
-	case action.MoveLineStartExtend:
-		return document.MoveLineStart(true)
-	case action.MoveLineEndExtend:
-		return document.MoveLineEnd(true)
-	case action.MoveDocStartExtend:
-		return document.MoveBufferStart(true)
-	case action.MoveDocEndExtend:
-		return document.MoveBufferEnd(true)
-
-	case action.SelectAll:
-		document.SelectAll()
-		return nil
-
-	case action.AddCursorAbove:
-		return document.AddCursorAbove()
-	case action.AddCursorBelow:
-		return document.AddCursorBelow()
-	case action.ClearExtraCursors:
-		document.ClearExtraCarets()
-		return nil
-	}
-
-	return fmt.Errorf("%w: %s", ErrNotImplemented, bound)
+	return handler.Apply(a, document)
 }
 
 // markSaved clears the dirty flag on every open document.
