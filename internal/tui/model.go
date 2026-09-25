@@ -146,6 +146,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyPressMsg:
 		m.handleKey(message)
+		if m.application.Quit {
+			// The model sets the flag and the runtime ends the program. Nothing
+			// read the flag before, so the editor could not be closed at all.
+			return m, tea.Quit
+		}
 		return m, nil
 	}
 	return m, nil
@@ -168,6 +173,13 @@ func (m *Model) handleKey(key tea.KeyPressMsg) {
 	}
 
 	chord := key.Keystroke()
+
+	// The focused surface gets the key first. Before this, the arrows moved the
+	// document caret whatever the focus was, and the tree could be looked at but
+	// not walked.
+	if m.handleFocusedSurfaceKey(chord) {
+		return
+	}
 
 	switch chord {
 	case "tab":
@@ -631,6 +643,45 @@ func (m *Model) handleOverlayKey(key tea.KeyPressMsg) {
 		m.filter += text
 		m.selected = 0
 	}
+}
+
+// handleFocusedSurfaceKey gives the focused surface its own keys.
+//
+// It reports whether the key was consumed. The tree is the first surface with a
+// local keyboard, and the shape is the one the focus graph documents: local keys
+// resolve before the global keymap, and an unconsumed key falls through to it.
+func (m *Model) handleFocusedSurfaceKey(chord string) bool {
+	if m.application.Focus != app.FocusTree || !m.application.ShowTree {
+		return false
+	}
+
+	tree := m.application.Tree
+	if tree == nil {
+		return false
+	}
+
+	switch chord {
+	case "up":
+		tree.MoveSelection(-1)
+		return true
+	case "down":
+		tree.MoveSelection(1)
+		return true
+	case "right":
+		_ = tree.ExpandSelected()
+		return true
+	case "left":
+		_ = tree.CollapseOrParent()
+		return true
+	case "enter":
+		// Activating opens a file or toggles a directory, and the store takes
+		// the path — the panel does not know about documents.
+		if path, opened, err := tree.Activate(); err == nil && opened {
+			_, _ = m.application.Store.OpenPath(path)
+		}
+		return true
+	}
+	return false
 }
 
 // handleFindKey routes a keystroke inside the search bar.

@@ -1,12 +1,16 @@
 package tui
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
 
 	"github.com/ori-team/oride/internal/action"
+	"github.com/ori-team/oride/internal/app"
+	"github.com/ori-team/oride/internal/fs"
 	"github.com/ori-team/oride/internal/keymap"
 	"github.com/ori-team/oride/internal/tui/layout"
 	"github.com/ori-team/oride/internal/tui/overlay"
@@ -316,5 +320,91 @@ func TestTypingGoesToTheReplaceFieldOnceRevealed(t *testing.T) {
 	}
 	if got := model.application.Find.Query; got != "alfa" {
 		t.Errorf("a consulta foi alterada: %q", got)
+	}
+}
+
+// TestQuitIsReportedToTheRuntime is the defect a reader hits first: the model set
+// the quit flag and nothing read it, so the editor could not be exited from
+// inside.
+//
+// The key itself is not synthesised here. Building a Bubble Tea key event means
+// reproducing its field encoding, and a test that did that would be checking the
+// encoding rather than this code; the path from the keymap to the flag is covered
+// in internal/app, where the command lives.
+// TestQuitIsReportedToTheRuntime: setting the flag is not enough — the runtime has
+// to be told, and that is what a Cmd is for.
+func TestQuitIsReportedToTheRuntime(t *testing.T) {
+	model := newModel(t, nil)
+	model.application.Quit = true
+
+	_, cmd := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyTab}))
+	if cmd == nil {
+		t.Fatal("o modelo não devolveu Cmd de saída com Quit ligado")
+	}
+
+	// Sem o flag, a mesma tecla não pode encerrar nada.
+	model.application.Quit = false
+	if _, quiet := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyTab})); quiet != nil {
+		t.Error("o modelo pediu para sair sem o flag ligado")
+	}
+}
+
+// TestTheTreeCanBeWalked is the second thing a reader hits: the panel could be
+// looked at and not walked, because the arrows moved the document caret whatever
+// the focus was.
+func TestTheTreeCanBeWalked(t *testing.T) {
+	root := t.TempDir()
+	for _, name := range []string{"a.txt", "b.txt", "c.txt"} {
+		if err := os.WriteFile(filepath.Join(root, name), []byte("x\n"), 0o644); err != nil {
+			t.Fatalf("escrevendo: %v", err)
+		}
+	}
+
+	model := sized(t, newModel(t, nil), 100, 30)
+	tree, err := fs.Open(root, false)
+	if err != nil {
+		t.Fatalf("abrindo a árvore: %v", err)
+	}
+	model.application.Tree = tree
+	model.application.ShowTree = true
+	model.application.Focus = app.FocusTree
+
+	before := tree.SelectedIndex()
+	updated, _ := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyDown}))
+	model = updated.(Model)
+
+	if got := model.application.Tree.SelectedIndex(); got == before {
+		t.Errorf("a seta não moveu a seleção da árvore: continua em %d", got)
+	}
+}
+
+// TestTreeKeysDoNotReachTheDocument: when the tree has focus, an arrow moves the
+// selection and leaves the caret alone.
+func TestTreeKeysDoNotReachTheDocument(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "a.txt"), []byte("linha um\nlinha dois\n"), 0o644); err != nil {
+		t.Fatalf("escrevendo: %v", err)
+	}
+
+	model := sized(t, newModel(t, nil), 100, 30)
+	model.application.Store.OpenPath(filepath.Join(root, "a.txt"))
+	tree, err := fs.Open(root, false)
+	if err != nil {
+		t.Fatalf("abrindo a árvore: %v", err)
+	}
+	model.application.Tree = tree
+	model.application.ShowTree = true
+	model.application.Focus = app.FocusTree
+
+	document, _ := model.application.Store.Active()
+	before, _ := document.Caret()
+
+	updated, _ := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyDown}))
+	model = updated.(Model)
+
+	after, _ := model.application.Store.Active()
+	now, _ := after.Caret()
+	if now != before {
+		t.Errorf("a seta mexeu no cursor do documento: %v → %v", before, now)
 	}
 }
