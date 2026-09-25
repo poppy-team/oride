@@ -24,6 +24,7 @@ import (
 	"github.com/ori-team/oride/internal/editor"
 	"github.com/ori-team/oride/internal/fs"
 	"github.com/ori-team/oride/internal/keymap"
+	"github.com/ori-team/oride/internal/session"
 	"github.com/ori-team/oride/internal/tui"
 	"github.com/ori-team/oride/internal/tui/theme"
 )
@@ -131,7 +132,7 @@ func openEditor(paths []string) error {
 	application.Workspace = workspace
 	application.Tree = openTree(workspace, configuration.Tree.ShowHidden)
 
-	if err := openPaths(application, paths); err != nil {
+	if err := restore(application, paths, workspace); err != nil {
 		return err
 	}
 
@@ -139,7 +140,72 @@ func openEditor(paths []string) error {
 	if _, err := program.Run(); err != nil {
 		return fmt.Errorf("TUI: %w", err)
 	}
+
+	// Written after the runtime has released the terminal, so a failure here
+	// reports to a working screen instead of over the alt screen.
+	return persist(application, workspace)
+}
+
+// restore opens what the command line named, or what was open last time.
+//
+// A file named on the command line wins outright: someone who typed a path is
+// asking for that file, not for their previous session plus that file.
+func restore(application *app.App, paths []string, workspace string) error {
+	if len(paths) > 0 {
+		return openPaths(application, paths)
+	}
+
+	previous, found := session.LoadForWorkspace(workspace)
+	if !found {
+		application.Store.OpenEmpty()
+		return nil
+	}
+
+	for _, file := range previous.Files {
+		if _, err := application.Store.OpenPath(file); err != nil {
+			// A file that has since been deleted is skipped rather than fatal:
+			// refusing to open the editor because one old tab vanished would make
+			// the session a liability.
+			continue
+		}
+	}
+	if application.Store.Len() == 0 {
+		application.Store.OpenEmpty()
+	}
+
+	application.ShowTree = session.BoolValue(previous.ShowTree, true)
 	return nil
+}
+
+// persist writes the session for the next run.
+//
+// The active document is stored by index into the file list, not by document id:
+// an id is a runtime counter and would point at nothing after a restart.
+func persist(application *app.App, workspace string) error {
+	files := application.Store.OpenPaths()
+
+	active := 0
+	if document, err := application.Store.Active(); err == nil {
+		if path, hasPath := document.Path(); hasPath {
+			active = indexOfPath(files, path)
+		}
+	}
+
+	showTree := application.ShowTree
+
+	restored := session.FromWorkspace(workspace, files, active)
+	restored.ShowTree = &showTree
+	return restored.Save()
+}
+
+// indexOfPath finds a path in the list, or nothing.
+func indexOfPath(files []string, path string) int {
+	for index, candidate := range files {
+		if candidate == path {
+			return index
+		}
+	}
+	return 0
 }
 
 // openTree opens the project tree, tolerating a directory that cannot be read.
