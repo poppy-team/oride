@@ -779,8 +779,9 @@ const treeWidth = 30
 // overlayCells writes text over a row starting at a cell offset, replacing as many
 // cells as the text occupies.
 //
-// Cell arithmetic, not byte arithmetic: the layout measured in cells, and mixing
-// the two units is how a row with a wide character in it ends up one column short.
+// It builds on layout.Slice rather than carrying its own walk: the copy here was
+// written before that helper had three callers, and two implementations of cell
+// arithmetic is one more place for a wide character to come out a column short.
 func overlayCells(row, text string, at int) string {
 	total := layout.Width(row)
 	if at >= total || total <= 0 {
@@ -788,33 +789,8 @@ func overlayCells(row, text string, at int) string {
 	}
 
 	width := min(layout.Width(text), total-at)
-	before := sliceCells(row, 0, at)
-	after := sliceCells(row, at+width, total-at-width)
+	before := layout.Slice(row, 0, at)
+	after := layout.Slice(row, at+width, total-at-width)
 
 	return layout.Pad(before, at) + layout.Pad(text, width) + layout.Pad(after, total-at-width)
-}
-
-// sliceCells extracts width cells from a row, starting at a cell offset.
-func sliceCells(row string, from, width int) string {
-	if width <= 0 {
-		return ""
-	}
-
-	skipped := 0
-	taken := 0
-	var out strings.Builder
-
-	for _, r := range row {
-		cellWidth := layout.Width(string(r))
-		if skipped+cellWidth <= from {
-			skipped += cellWidth
-			continue
-		}
-		if taken+cellWidth > width {
-			break
-		}
-		out.WriteRune(r)
-		taken += cellWidth
-	}
-	return out.String()
 }
