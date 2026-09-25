@@ -9,6 +9,7 @@ package layout
 import (
 	"strings"
 
+	"github.com/charmbracelet/x/ansi"
 	"github.com/mattn/go-runewidth"
 )
 
@@ -182,7 +183,22 @@ const overlaidTreeHeight = 12
 var condition = &runewidth.Condition{EastAsianWidth: true}
 
 // Width measures a string in terminal cells.
-func Width(text string) int { return condition.StringWidth(text) }
+//
+// Escape sequences occupy no cells, so they are stripped before measuring. Without
+// this, styling a row would change its measured width and every line to its right
+// would shift — the bug would appear only once colour arrived, and only visually.
+//
+// The escape scan is a fast path rather than an optimisation for its own sake:
+// every row of every frame is measured, and most rows carry no escape at all.
+func Width(text string) int {
+	if strings.IndexByte(text, escape) < 0 {
+		return condition.StringWidth(text)
+	}
+	return condition.StringWidth(ansi.Strip(text))
+}
+
+// escape is the control character that begins an ANSI sequence.
+const escape = 0x1b
 
 // Truncate cuts text to fit width cells, marking that it was cut.
 //
