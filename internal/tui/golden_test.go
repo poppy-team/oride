@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ori-team/oride/internal/tui/focus"
+	"github.com/ori-team/oride/internal/tui/overlay"
 )
 
 var update = flag.Bool("update", false, "regenera os golden frames")
@@ -56,6 +57,25 @@ func frameCases() []frameCase {
 
 		// A frame at the smallest size the layout still treats as usable.
 		{name: "minimum", width: 40, height: 6},
+
+		// The overlays, which capture input and float above the surfaces.
+		{name: "overlay-palette", width: 100, height: 30, arrange: func(m *Model) {
+			m.overlay = overlay.Palette
+		}},
+		{name: "overlay-whichkey", width: 100, height: 30, arrange: func(m *Model) {
+			m.overlay = overlay.WhichKey
+		}},
+		{name: "overlay-filtered", width: 100, height: 30, arrange: func(m *Model) {
+			m.overlay = overlay.Palette
+			m.filter = "undo"
+		}},
+		{name: "overlay-empty-filter", width: 100, height: 30, arrange: func(m *Model) {
+			m.overlay = overlay.Palette
+			m.filter = "zzzzzz"
+		}},
+		{name: "overlay-compact", width: 60, height: 20, arrange: func(m *Model) {
+			m.overlay = overlay.Help
+		}},
 	}
 }
 

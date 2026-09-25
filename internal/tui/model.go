@@ -16,6 +16,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 
+	"github.com/ori-team/oride/internal/action"
 	"github.com/ori-team/oride/internal/app"
 	"github.com/ori-team/oride/internal/editor"
 	"github.com/ori-team/oride/internal/i18n"
@@ -25,6 +26,7 @@ import (
 	"github.com/ori-team/oride/internal/tui/focus"
 	"github.com/ori-team/oride/internal/tui/layout"
 	"github.com/ori-team/oride/internal/tui/menubar"
+	"github.com/ori-team/oride/internal/tui/overlay"
 	"github.com/ori-team/oride/internal/tui/statusbar"
 	"github.com/ori-team/oride/internal/tui/tabs"
 	"github.com/ori-team/oride/internal/tui/tree"
@@ -48,6 +50,13 @@ type Model struct {
 
 	size    layout.Size
 	surface focus.Surface
+
+	// The overlay takes every keystroke while it is open. Its filter and
+	// selection live here rather than inside a surface because they are state,
+	// and state belongs where the dump can see it.
+	overlay  overlay.Kind
+	filter   string
+	selected int
 }
 
 // New builds the model over an application.
@@ -91,6 +100,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // else goes through the keymap, and a keystroke the keymap does not resolve is
 // text — which is what makes typing work at all.
 func (m *Model) handleKey(key tea.KeyPressMsg) {
+	// The first rule of the focus graph: an active overlay captures every
+	// keystroke. Nothing below runs while one is open — not the focus traversal,
+	// not the keymap, not typing — because a key typed into a filter that also
+	// edited the buffer behind it would be a data-loss bug, not a nuisance.
+	if m.overlay.Captures() {
+		m.handleOverlayKey(key)
+		return
+	}
+
 	chord := key.Keystroke()
 
 	switch chord {
@@ -103,6 +121,9 @@ func (m *Model) handleKey(key tea.KeyPressMsg) {
 	}
 
 	if chord != "" {
+		if m.openOverlayFor(chord) {
+			return
+		}
 		if err := m.application.ApplyKey(chord); err == nil {
 			return
 		}
@@ -226,7 +247,35 @@ func (m Model) Frame() string {
 	if len(rows) > m.size.Height {
 		rows = rows[:m.size.Height]
 	}
+
+	if m.overlay.Captures() {
+		rows = m.paintOverlay(rows, regions)
+	}
 	return strings.Join(rows, "\n")
+}
+
+// paintOverlay draws the open overlay over the body.
+//
+// It goes over the body rather than over the whole frame, so the menu bar, the
+// tabs and the status bar stay visible: the reader keeps knowing what is open and
+// where the cursor is while a list is in front of them.
+func (m Model) paintOverlay(rows []string, regions layout.Regions) []string {
+	view := m.overlayView()
+	height := min(regions.Editor.Height, overlay.Frame(len(view.Items))+2)
+	region := overlay.Region(regions.Editor, regions.Editor.Width, height)
+	if region.Empty() {
+		return rows
+	}
+
+	painted := overlay.List(region.Width, region.Height, view)
+	for index, line := range painted {
+		row := region.Y + index
+		if row < 0 || row >= len(rows) {
+			break
+		}
+		rows[row] = overlayCells(rows[row], line, region.X)
+	}
+	return rows
 }
 
 // bodyRows composes the tree and the editor, side by side or overlaid.
@@ -365,6 +414,226 @@ func (m Model) statusView() statusbar.View {
 		view.HasCaret = true
 	}
 	return view
+}
+
+// openFor maps an action onto the overlay it opens.
+//
+// Driven by the keymap rather than by hard-coded chords, so remapping the palette
+// key still opens the palette.
+func overlayFor(bound action.Action) (overlay.Kind, bool) {
+	switch bound {
+	case action.CommandPalette:
+		return overlay.Palette, true
+	case action.WhichKey:
+		return overlay.WhichKey, true
+	case action.Help, action.Welcome:
+		return overlay.Help, true
+	}
+	return overlay.None, false
+}
+
+// openOverlayFor opens the overlay a chord resolves to, if any.
+func (m *Model) openOverlayFor(chord string) bool {
+	parsed, err := keymap.Parse(chord)
+	if err != nil {
+		return false
+	}
+	bound, ok := m.keys.Resolve(parsed)
+	if !ok {
+		return false
+	}
+
+	kind, opens := overlayFor(bound)
+	if !opens {
+		return false
+	}
+	m.overlay = kind
+	m.filter = ""
+	m.selected = 0
+	return true
+}
+
+// handleOverlayKey routes a keystroke inside an open overlay.
+//
+// Nothing here reaches the model. Closing is the only way back, which is what
+// makes the capture rule hold in both directions.
+func (m *Model) handleOverlayKey(key tea.KeyPressMsg) {
+	chord := key.Keystroke()
+
+	switch chord {
+	case "escape", "esc", "ctrl+c":
+		m.closeOverlay()
+		return
+	case "enter":
+		m.closeOverlay()
+		return
+	case "up", "ctrl+p":
+		m.moveSelection(-1)
+		return
+	case "down", "ctrl+n":
+		m.moveSelection(1)
+		return
+	case "backspace":
+		m.backspaceFilter()
+		return
+	}
+
+	// The key carries its own text; Keystroke() is a display form and comes back
+	// empty for a key that only has Text set.
+	text := key.Text
+	if text == "" && isTypable(chord) {
+		text = chord
+	}
+	if text != "" && isTypable(text) {
+		m.filter += text
+		m.selected = 0
+	}
+}
+
+// closeOverlay returns input to the surfaces.
+func (m *Model) closeOverlay() {
+	m.overlay = overlay.None
+	m.filter = ""
+	m.selected = 0
+}
+
+// moveSelection moves the highlight, clamped to the filtered list.
+func (m *Model) moveSelection(delta int) {
+	total := len(filterItems(m.overlayItems(), m.filter))
+	if total == 0 {
+		m.selected = 0
+		return
+	}
+	m.selected = min(max(0, m.selected+delta), total-1)
+}
+
+// backspaceFilter removes the last filter character. It removes a rune, not a
+// byte, or an accented letter would take two presses.
+func (m *Model) backspaceFilter() {
+	runes := []rune(m.filter)
+	if len(runes) == 0 {
+		return
+	}
+	m.filter = string(runes[:len(runes)-1])
+	m.selected = 0
+}
+
+// overlayItems is the unfiltered content of the open overlay.
+func (m Model) overlayItems() []overlay.Item {
+	switch m.overlay {
+	case overlay.Palette:
+		return paletteItems()
+	case overlay.WhichKey, overlay.Help:
+		return bindingItems(m.keys)
+	}
+	return nil
+}
+
+// paletteItems lists the commands the palette offers.
+func paletteItems() []overlay.Item {
+	commands := action.Palette()
+	items := make([]overlay.Item, 0, len(commands))
+	for _, command := range commands {
+		items = append(items, overlay.Item{Label: command.String()})
+	}
+	return items
+}
+
+// bindingItems lists every binding, sorted by chord by the keymap itself.
+func bindingItems(keys *keymap.Map) []overlay.Item {
+	// A nil keymap resolves nothing, and listing an empty table would look like a
+	// keymap that lost its bindings.
+	if keys == nil {
+		return nil
+	}
+
+	bindings := keys.Bindings()
+	items := make([]overlay.Item, 0, len(bindings))
+	for _, binding := range bindings {
+		items = append(items, overlay.Item{
+			Label:  binding.Chord.String(),
+			Detail: binding.Action.String(),
+		})
+	}
+	return items
+}
+
+// filterItems keeps the rows whose label matches the filter.
+//
+// A subsequence match, the same shape a fuzzy finder uses, and it runs on the
+// label characters rather than on a score: the score arrives with the pickers in
+// M4, and inventing one here would be a second thing to keep consistent.
+func filterItems(items []overlay.Item, filter string) []overlay.Item {
+	if filter == "" {
+		return items
+	}
+
+	needle := []rune(strings.ToLower(filter))
+	out := make([]overlay.Item, 0, len(items))
+	for _, item := range items {
+		if subsequence(needle, []rune(strings.ToLower(item.Label))) {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
+// subsequence reports whether every needle rune appears in order in haystack.
+func subsequence(needle, haystack []rune) bool {
+	index := 0
+	for _, r := range haystack {
+		if index < len(needle) && needle[index] == r {
+			index++
+		}
+	}
+	return index == len(needle)
+}
+
+// overlayView builds the list the overlay draws.
+func (m Model) overlayView() overlay.ListView {
+	items := filterItems(m.overlayItems(), m.filter)
+
+	for index := range items {
+		items[index].Selected = index == m.selected
+	}
+
+	return overlay.ListView{
+		Title:  m.overlayTitle(),
+		Hint:   m.overlayHint(),
+		Items:  items,
+		Scroll: scrollFor(m.selected),
+		Empty:  "(nenhum resultado)",
+	}
+}
+
+// overlayTitle names the open overlay.
+func (m Model) overlayTitle() string {
+	switch m.overlay {
+	case overlay.Palette:
+		return "Comandos"
+	case overlay.WhichKey:
+		return "Atalhos"
+	case overlay.Help:
+		return "Ajuda"
+	}
+	return ""
+}
+
+// overlayHint states how to leave and what the keystrokes do.
+func (m Model) overlayHint() string {
+	if m.filter != "" {
+		return "Enter fecha · Esc cancela · filtro: " + m.filter
+	}
+	return "digite para filtrar · ↑↓ move · Enter fecha · Esc cancela"
+}
+
+// scrollFor keeps the selection inside the window the overlay will draw.
+func scrollFor(selected int) int {
+	const visibleRows = 16
+	if selected < visibleRows {
+		return 0
+	}
+	return selected - visibleRows + 1
 }
 
 // wants is what the model asks the layout to show.
