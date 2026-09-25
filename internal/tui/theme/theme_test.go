@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"charm.land/lipgloss/v2"
+
 	"github.com/ori-team/oride/internal/config"
 	"github.com/ori-team/oride/internal/tui/layout"
 )
@@ -110,6 +112,37 @@ func TestParseAcceptsHexAndNames(t *testing.T) {
 	for _, value := range []string{"#282a36", "#fff", "red", "brightblack"} {
 		if parse(value) == nil {
 			t.Errorf("parse(%q) não resolveu", value)
+		}
+	}
+}
+
+// TestNamedColoursActuallyRender is the regression guard for a bug that every
+// other test in this file missed.
+//
+// They used hex, the shipped configuration uses names, and an unresolved name is a
+// silent no-op — so the package passed its tests while the product rendered
+// monochrome. This asserts the rendered output, not the parsed value.
+func TestNamedColoursActuallyRender(t *testing.T) {
+	for _, name := range []string{"darkgray", "red", "brightblack"} {
+		rendered := lipgloss.NewStyle().Foreground(parse(name)).Render("x")
+		if !strings.ContainsRune(rendered, 0x1b) {
+			t.Errorf("a cor %q não produziu estilo: %q", name, rendered)
+		}
+	}
+}
+
+// TestShippedDefaultRendersWithColour uses the configuration the product ships,
+// which is what the previous test could not cover.
+func TestShippedDefaultRendersWithColour(t *testing.T) {
+	shipped := config.Default()
+	built := New(shipped.UI, shipped.Syntax, TrueColor)
+
+	for role, rendered := range map[string]string{
+		"status": built.Status().Render("x"),
+		"gutter": built.Gutter().Render("1"),
+	} {
+		if !strings.ContainsRune(rendered, 0x1b) {
+			t.Errorf("%s: a configuração padrão não produz cor: %q", role, rendered)
 		}
 	}
 }

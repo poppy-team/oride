@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/ori-team/oride/internal/tui/layout"
+	"github.com/ori-team/oride/internal/tui/theme"
 )
 
 // View is what the status bar needs to draw.
@@ -21,6 +22,9 @@ type View struct {
 	CaretCol   int
 	HasCaret   bool
 	CursorMode string
+	// Theme styles the bar. The zero value renders plain, which is what a
+	// no-colour terminal and every test want.
+	Theme theme.Theme
 }
 
 // markers. The dirty flag is spelled out, not only tinted.
@@ -55,7 +59,14 @@ func Render(width int, view View) string {
 	if padding < 0 {
 		padding = 0
 	}
-	return layout.Pad(left+spaces(padding)+right, width)
+
+	// The style wraps the whole padded line, not just the text: a status bar whose
+	// background stopped at the last word would look like a rendering fault.
+	bar := layout.Pad(left+spaces(padding)+right, width)
+	if view.Dirty {
+		return view.Theme.StatusDirty().Render(bar)
+	}
+	return view.Theme.Status().Render(bar)
 }
 
 // description is the left-hand part: what is open, where focus is, and any

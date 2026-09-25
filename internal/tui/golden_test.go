@@ -10,6 +10,7 @@ import (
 
 	"github.com/ori-team/oride/internal/tui/focus"
 	"github.com/ori-team/oride/internal/tui/overlay"
+	"github.com/ori-team/oride/internal/tui/theme"
 )
 
 var update = flag.Bool("update", false, "regenera os golden frames")
@@ -88,7 +89,11 @@ func frameCases() []frameCase {
 func TestGoldenFrames(t *testing.T) {
 	for _, testCase := range frameCases() {
 		t.Run(testCase.name, func(t *testing.T) {
-			model := sized(t, newModel(t, nil), testCase.width, testCase.height)
+			// Golden frames are generated with colour suppressed. A frame full of
+			// escape sequences is unreadable in a diff, and the point of a golden
+			// file is that a human reviews the change; colour has its own test
+			// below, which needs no golden.
+			model := sized(t, newModel(t, nil), testCase.width, testCase.height).WithProfile(theme.NoColor)
 			if testCase.arrange != nil {
 				testCase.arrange(&model)
 			}

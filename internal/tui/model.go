@@ -18,6 +18,7 @@ import (
 
 	"github.com/ori-team/oride/internal/action"
 	"github.com/ori-team/oride/internal/app"
+	"github.com/ori-team/oride/internal/config"
 	"github.com/ori-team/oride/internal/editor"
 	"github.com/ori-team/oride/internal/i18n"
 	"github.com/ori-team/oride/internal/keymap"
@@ -29,6 +30,7 @@ import (
 	"github.com/ori-team/oride/internal/tui/overlay"
 	"github.com/ori-team/oride/internal/tui/statusbar"
 	"github.com/ori-team/oride/internal/tui/tabs"
+	"github.com/ori-team/oride/internal/tui/theme"
 	"github.com/ori-team/oride/internal/tui/tree"
 )
 
@@ -47,6 +49,10 @@ type Model struct {
 
 	// catalog supplies the menu labels, so no surface holds hard-coded text.
 	catalog i18n.Catalog
+	// theme is resolved once, from configuration and a profile, and handed to
+	// every surface. Resolving it per frame would mean rebuilding the same styles
+	// on every keystroke.
+	theme theme.Theme
 
 	size    layout.Size
 	surface focus.Surface
@@ -66,8 +72,57 @@ func New(application *app.App, keys *keymap.Map) Model {
 		keys:        keys,
 		graph:       focus.New(),
 		catalog:     i18n.LoadRegistry(application.Workspace).Get(i18n.ParseID(application.Config.Locale)),
+		theme:       resolveTheme(application),
 		surface:     focus.Editor,
 	}
+}
+
+// WithProfile rebuilds the theme for a colour profile.
+//
+// A method rather than a constructor argument because the profile comes from the
+// terminal the program is actually talking to, which is known after the model
+// exists — and injecting it keeps a test off the process environment.
+func (m Model) WithProfile(profile theme.Profile) Model {
+	m.theme = theme.New(m.palette().UI, m.palette().Syntax, profile)
+	return m
+}
+
+// palette resolves the colours the theme is built from.
+//
+// The named theme supplies them; Config.UI and Config.Syntax are the user's
+// overrides on top. Reading Config.UI alone — which an earlier version did — gives
+// an empty palette, because the shipped configuration names a theme instead of
+// spelling out its colours, and the frame comes out monochrome with every test
+// still passing.
+func (m Model) palette() config.ThemeDefinition {
+	return paletteOf(m.application)
+}
+
+// resolveTheme builds the theme a fresh model starts with.
+func resolveTheme(application *app.App) theme.Theme {
+	definition := paletteOf(application)
+	return theme.New(definition.UI, definition.Syntax, theme.TrueColor)
+}
+
+// paletteOf resolves the effective theme definition for an application.
+func paletteOf(application *app.App) config.ThemeDefinition {
+	registry := config.LoadThemeRegistry(application.Workspace)
+	if definition, found := registry.Get(config.NormalizeThemeName(application.Config.Theme)); found {
+		return definition
+	}
+	// A theme name that resolves to nothing falls back to the configuration's own
+	// colours rather than to an empty palette.
+	return config.ThemeDefinition{UI: application.Config.UI, Syntax: application.Config.Syntax}
+}
+
+// Resize sets the measured size.
+//
+// Exported for callers that render without a runtime — the frame-printing
+// command and the golden tests — so they do not have to fabricate a message to
+// tell the model how big the terminal is.
+func (m Model) Resize(width, height int) Model {
+	m.size = layout.Size{Width: width, Height: height}
+	return m
 }
 
 // Init performs no work.
@@ -331,7 +386,7 @@ func (m Model) tabsView() tabs.View {
 			Active: hasActive && summary.ID == active,
 		})
 	}
-	return tabs.View{Tabs: list, Focused: m.surface == focus.Tabs}
+	return tabs.View{Tabs: list, Focused: m.surface == focus.Tabs, Theme: m.theme}
 }
 
 // treeView builds the panel's view from the project tree.
@@ -359,6 +414,7 @@ func (m Model) editorView(regions layout.Regions) editorview.View {
 	view := editorview.View{
 		Gutter:  m.application.Config.ShowLineNumbers,
 		Focused: m.surface == focus.Editor,
+		Theme:   m.theme,
 	}
 
 	document, err := m.application.Store.Active()
@@ -398,6 +454,7 @@ func (m Model) statusView() statusbar.View {
 	view := statusbar.View{
 		Focus:   string(m.surface),
 		Message: m.application.Status,
+		Theme:   m.theme,
 	}
 
 	document, err := m.application.Store.Active()

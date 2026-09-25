@@ -10,8 +10,11 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
 
@@ -22,12 +25,14 @@ import (
 	"github.com/ori-team/oride/internal/fs"
 	"github.com/ori-team/oride/internal/keymap"
 	"github.com/ori-team/oride/internal/tui"
+	"github.com/ori-team/oride/internal/tui/theme"
 )
 
 const usage = `oride — terminal IDE
 
 USAGE:
-  oride [FILE...]      open the editor
+  oride [FILE...]            open the editor
+  oride --print-frame [WxH]  render one frame to stdout and exit
   oride --version      print the version
   oride --help         print this message
 
@@ -55,7 +60,54 @@ func run(args []string) error {
 			return nil
 		}
 	}
+	if len(args) > 0 && args[0] == "--print-frame" {
+		return printFrame(os.Stdout, args[1:])
+	}
 	return openEditor(args)
+}
+
+// printFrame renders one frame to a writer and exits.
+//
+// The frame is a pure function of the model, so it can be inspected without a
+// terminal — which is what makes it reviewable in a diff, in a bug report, or in
+// a pipeline that has no TTY.
+func printFrame(out io.Writer, args []string) error {
+	width, height := 100, 30
+	if len(args) > 0 {
+		if w, h, ok := parseSize(args[0]); ok {
+			width, height = w, h
+		}
+	}
+
+	application := app.New(editor.NewStore(), config.Default(), keymap.New())
+	application.Store.OpenEmpty()
+	if working, err := os.Getwd(); err == nil {
+		application.Workspace = working
+		if tree, treeErr := fs.Open(working, false); treeErr == nil {
+			application.Tree = tree
+		}
+	}
+
+	model := tui.New(application, keymap.New()).
+		WithProfile(theme.TrueColor).
+		Resize(width, height)
+
+	fmt.Fprintln(out, model.Frame())
+	return nil
+}
+
+// parseSize reads a WxH argument.
+func parseSize(arg string) (int, int, bool) {
+	widthText, heightText, found := strings.Cut(arg, "x")
+	if !found {
+		return 0, 0, false
+	}
+	width, widthErr := strconv.Atoi(widthText)
+	height, heightErr := strconv.Atoi(heightText)
+	if widthErr != nil || heightErr != nil || width <= 0 || height <= 0 {
+		return 0, 0, false
+	}
+	return width, height, true
 }
 
 // openEditor builds the model and hands control to the runtime.

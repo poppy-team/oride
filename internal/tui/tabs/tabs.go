@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/ori-team/oride/internal/tui/layout"
+	"github.com/ori-team/oride/internal/tui/theme"
 )
 
 // Tab is one open document as the bar sees it.
@@ -18,6 +19,8 @@ type Tab struct {
 type View struct {
 	Tabs    []Tab
 	Focused bool
+	// Theme styles the active chip. The zero value renders plain.
+	Theme theme.Theme
 }
 
 // Markers. Text, not colour: a state carried only by a tint is invisible in a
@@ -48,6 +51,11 @@ func Render(width int, view View) string {
 	var out strings.Builder
 	for _, tab := range ordered {
 		chip := chipText(tab)
+		if tab.Active {
+			// Styling the chip rather than the row: the width is measured after
+			// styling, so the highlight cannot change where the next tab starts.
+			chip = view.Theme.Selection().Render(chip)
+		}
 		if layout.Width(out.String())+layout.Width(chip) > width {
 			// The remaining tabs do not fit. The cut is marked, because a bar that
 			// silently drops tabs looks like a bar with fewer tabs.

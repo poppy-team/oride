@@ -7,6 +7,8 @@ package theme
 
 import (
 	"image/color"
+	"strconv"
+	"strings"
 
 	"charm.land/lipgloss/v2"
 
@@ -101,15 +103,33 @@ func (t Theme) style(background, foreground, text string, bold bool) lipgloss.St
 	return style
 }
 
+// ansiNames maps the colour names a configuration may use onto ANSI indices.
+//
+// The style library resolves hex and ANSI numbers, and silently ignores a name it
+// does not know. That silence is what made an earlier version of this package ship
+// a monochrome editor while every test passed: the tests used hex, the shipped
+// configuration uses names, and an unresolved name is a no-op rather than an
+// error.
+var ansiNames = map[string]int{
+	"black": 0, "red": 1, "green": 2, "yellow": 3,
+	"blue": 4, "magenta": 5, "cyan": 6, "white": 7,
+	"brightblack": 8, "darkgray": 8, "darkgrey": 8, "gray": 8, "grey": 8,
+	"brightred": 9, "brightgreen": 10, "brightyellow": 11,
+	"brightblue": 12, "brightmagenta": 13, "brightcyan": 14, "brightwhite": 15,
+}
+
 // parse reads a colour from configuration.
 //
 // An empty value and the literal "reset" both mean "no colour", and both are
-// normal in the shipped themes — passing either to the style library would be a
-// value it cannot resolve, so they are filtered here rather than at every call.
+// normal in the shipped themes. A recognised name becomes its ANSI index, so the
+// value the style library receives is one it can actually render.
 func parse(value string) color.Color {
 	switch value {
 	case "", "reset", "none":
 		return nil
+	}
+	if index, known := ansiNames[strings.ToLower(strings.TrimSpace(value))]; known {
+		return lipgloss.Color(strconv.Itoa(index))
 	}
 	return lipgloss.Color(value)
 }

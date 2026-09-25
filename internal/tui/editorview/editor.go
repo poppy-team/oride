@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/ori-team/oride/internal/tui/layout"
+	"github.com/ori-team/oride/internal/tui/theme"
 )
 
 // View is what the viewport needs to draw.
@@ -19,6 +20,8 @@ type View struct {
 	HasCaret bool
 	Gutter   bool
 	Focused  bool
+	// Theme dims the gutter. The zero value renders plain.
+	Theme theme.Theme
 }
 
 // TotalLines is the document's length, which the gutter is sized from.
@@ -94,7 +97,10 @@ func renderLine(width, gutterWidth, index int, view View) string {
 	}
 	gutter := marker + layout.Pad(strconv.Itoa(number+1), gutterWidth-1)
 
-	return layout.Pad(gutter+layout.Pad(text, width-gutterWidth), width)
+	// The gutter is styled and the text is not, so the line stays selectable by
+	// copy: a background over the text would be captured by a terminal copy.
+	body := layout.Pad(text, width-gutterWidth)
+	return layout.Pad(view.Theme.Gutter().Render(gutter), gutterWidth) + body
 }
 
 // gutterSize is the width of the widest line number the file will reach.
