@@ -51,7 +51,36 @@ abstração especulativa (§1.6); eles nascem na fatia que os faz ter comportame
   atendia, canonicalidade de cada id registrado, e as duas direções de
   `NeedsDocument`.
 
-### Próximo — M3.2: esqueleto Bubble Tea
+### M3.2 — Esqueleto Bubble Tea · **completo**
+### M3.3 — Superfícies · **completo**
+
+**Nove superfícies**, cada uma num pacote próprio que **não importa `internal/app`**
+(regra R3): o composition root monta a view e a superfície pinta. É o que faz uma
+superfície ser descartável — apagar a pasta e a linha que a chama.
+
+`layout` (geometria pura, classes de largura) · `component` (janela de scroll e
+linha de lista, com **dois** casos comprovados) · `focus` (grafo como dado) ·
+`editorview` · `tree` · `tabs` · `statusbar` · `menubar` · `help` e `modal` ficam
+para M3.4.
+
+**O `menubar` é o primeiro consumidor que o `internal/i18n` já teve** — os
+catálogos estavam completos e sem uso desde o port.
+
+**Quatro regras em todas as superfícies**, porque cada uma já foi defeito nesta
+migração: a coluna do cursor é reservada selecionando ou não; nenhum estado é
+comunicado só por cor (sujo, aba ativa, menu aberto e linha selecionada são
+escritos também); toda linha volta com largura exata; e vazio é distinguível de
+quebrado.
+
+**A quinta ocorrência da mesma classe de bug** foi fechada como classe, não como
+instância: um valor medido numa unidade e afirmado noutra apareceu quatro vezes
+neste trabalho — a largura do `…` no `layout` e no `docdrift`, a largura do `▶` no
+`component`, e um teste comparando bytes onde o código media células.
+
+### Próximo — M3.4: sobreposições
+
+`palette`, `whichkey`, `help` e os modais, com a regra de captura do grafo provada
+por teste.
 
 ## Onde o projeto está
 

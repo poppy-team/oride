@@ -17,9 +17,17 @@ import (
 	tea "charm.land/bubbletea/v2"
 
 	"github.com/ori-team/oride/internal/app"
+	"github.com/ori-team/oride/internal/editor"
+	"github.com/ori-team/oride/internal/i18n"
 	"github.com/ori-team/oride/internal/keymap"
+	"github.com/ori-team/oride/internal/tui/component"
+	"github.com/ori-team/oride/internal/tui/editorview"
 	"github.com/ori-team/oride/internal/tui/focus"
 	"github.com/ori-team/oride/internal/tui/layout"
+	"github.com/ori-team/oride/internal/tui/menubar"
+	"github.com/ori-team/oride/internal/tui/statusbar"
+	"github.com/ori-team/oride/internal/tui/tabs"
+	"github.com/ori-team/oride/internal/tui/tree"
 )
 
 // windowTitle is what the terminal title bar shows.
@@ -35,6 +43,9 @@ type Model struct {
 	keys        *keymap.Map
 	graph       focus.Graph
 
+	// catalog supplies the menu labels, so no surface holds hard-coded text.
+	catalog i18n.Catalog
+
 	size    layout.Size
 	surface focus.Surface
 }
@@ -45,6 +56,7 @@ func New(application *app.App, keys *keymap.Map) Model {
 		application: application,
 		keys:        keys,
 		graph:       focus.New(),
+		catalog:     i18n.LoadRegistry(application.Workspace).Get(i18n.ParseID(application.Config.Locale)),
 		surface:     focus.Editor,
 	}
 }
@@ -192,6 +204,10 @@ func (m Model) mouseMode() tea.MouseMode {
 // Exported so tests and golden frames can call it without a running tea.Program:
 // the frame is a pure function of the model, and a golden file should exercise the
 // function rather than the runtime.
+//
+// The frame comes back exactly as tall and as wide as the terminal. A frame one
+// row short leaves the previous one's remnants on screen, and a row one cell wide
+// shifts everything to its right.
 func (m Model) Frame() string {
 	regions := layout.Compute(m.size, m.wants())
 	if regions.Editor.Empty() {
@@ -199,18 +215,156 @@ func (m Model) Frame() string {
 	}
 
 	rows := make([]string, 0, m.size.Height)
-	rows = append(rows, m.renderRow(string(focus.MenuBar), regions.MenuBar))
-	rows = append(rows, m.renderRow(string(focus.Tabs), regions.Tabs))
+	rows = append(rows, menubar.Render(m.size.Width, m.menuView()))
+	rows = append(rows, tabs.Render(m.size.Width, m.tabsView()))
+	rows = append(rows, m.bodyRows(regions)...)
+	rows = append(rows, statusbar.Render(m.size.Width, m.statusView()))
 
-	body := m.renderBody(regions)
-	rows = append(rows, body...)
-
-	for row := len(rows); row < regions.StatusBar.Y; row++ {
+	for len(rows) < m.size.Height {
 		rows = append(rows, strings.Repeat(" ", m.size.Width))
 	}
-	rows = append(rows, layout.Pad(m.statusLine(), m.size.Width))
-
+	if len(rows) > m.size.Height {
+		rows = rows[:m.size.Height]
+	}
 	return strings.Join(rows, "\n")
+}
+
+// bodyRows composes the tree and the editor, side by side or overlaid.
+func (m Model) bodyRows(regions layout.Regions) []string {
+	editorRows := editorview.Render(regions.Editor.Width, regions.Editor.Height, m.editorView(regions))
+
+	if regions.Tree.Empty() {
+		return editorRows
+	}
+	treeRows := tree.Render(regions.Tree.Width, regions.Tree.Height, m.treeView())
+
+	if regions.TreeOverlaid {
+		for index, treeRow := range treeRows {
+			if index >= len(editorRows) {
+				break
+			}
+			editorRows[index] = overlayCells(editorRows[index], treeRow, regions.Tree.X)
+		}
+		return editorRows
+	}
+
+	for index := range editorRows {
+		treeRow := ""
+		if index < len(treeRows) {
+			treeRow = treeRows[index]
+		}
+		editorRows[index] = layout.Pad(treeRow, regions.Tree.Width) + editorRows[index]
+	}
+	return editorRows
+}
+
+// menuView builds the menu bar's view from the locale catalog.
+func (m Model) menuView() menubar.View {
+	return menubar.View{
+		Labels: menubar.LabelsFor(
+			m.catalog.Menu.File, m.catalog.Menu.Edit, m.catalog.Menu.View,
+			m.catalog.Menu.Go, m.catalog.Menu.Git, m.catalog.Menu.Help,
+		),
+		Open: -1,
+	}
+}
+
+// tabsView builds the tab bar's view from the open documents.
+func (m Model) tabsView() tabs.View {
+	summaries := m.application.Store.TabSummaries()
+	active, hasActive := m.application.Store.ActiveID()
+
+	list := make([]tabs.Tab, 0, len(summaries))
+	for _, summary := range summaries {
+		list = append(list, tabs.Tab{
+			Title:  summary.Title,
+			Dirty:  summary.Dirty,
+			Active: hasActive && summary.ID == active,
+		})
+	}
+	return tabs.View{Tabs: list, Focused: m.surface == focus.Tabs}
+}
+
+// treeView builds the panel's view from the project tree.
+func (m Model) treeView() tree.View {
+	if m.application.Tree == nil {
+		return tree.View{Focused: m.surface == focus.Tree}
+	}
+
+	rows := m.application.Tree.FlatRows()
+	list := make([]tree.Row, 0, len(rows))
+	for _, row := range rows {
+		list = append(list, tree.Row{
+			Depth: row.Depth, Name: row.Name, IsDir: row.IsDir, Expanded: row.Expanded,
+		})
+	}
+	return tree.View{
+		Rows:     list,
+		Selected: m.application.Tree.SelectedIndex(),
+		Focused:  m.surface == focus.Tree,
+	}
+}
+
+// editorView builds the viewport's view, extracting only the visible lines.
+func (m Model) editorView(regions layout.Regions) editorview.View {
+	view := editorview.View{
+		Gutter:  m.application.Config.ShowLineNumbers,
+		Focused: m.surface == focus.Editor,
+	}
+
+	document, err := m.application.Store.Active()
+	if err != nil {
+		return view
+	}
+	if caret, caretErr := document.Caret(); caretErr == nil {
+		view.Caret = editorview.Position{Line: caret.Line, Column: caret.Column}
+		view.HasCaret = true
+	}
+	view.Lines, view.Offset = visibleLines(document, regions.Editor.Height, view.Caret.Line)
+	return view
+}
+
+// visibleLines extracts the rows the viewport can show.
+//
+// The model owns the window because it is state, and because extracting every line
+// of the document on each frame would be O(file) per keystroke for a screen that
+// shows forty rows.
+func visibleLines(document *editor.Document, height, caretLine int) ([]string, int) {
+	buffer := document.Buffer()
+	start, end := component.Window(buffer.LineCount(), height, caretLine, 0)
+
+	lines := make([]string, 0, end-start)
+	for line := start; line < end; line++ {
+		text, err := buffer.LineText(line)
+		if err != nil {
+			break
+		}
+		lines = append(lines, strings.TrimRight(text, "\n"))
+	}
+	return lines, start
+}
+
+// statusView builds the status bar's view.
+func (m Model) statusView() statusbar.View {
+	view := statusbar.View{
+		Focus:   string(m.surface),
+		Message: m.application.Status,
+	}
+
+	document, err := m.application.Store.Active()
+	if err != nil {
+		return view
+	}
+	view.File = document.TabTitle()
+	view.Dirty = document.IsDirty()
+	if caret, caretErr := document.Caret(); caretErr == nil {
+		// One-based for display: a reader counts lines from one, and a status bar
+		// that says Ln 0 is a status bar that looks broken.
+		view.CaretLine = caret.Line + 1
+		view.CaretCol = caret.Column + 1
+		view.HasCaret = true
+	}
+	return view
 }
 
 // wants is what the model asks the layout to show.
@@ -223,37 +377,6 @@ func (m Model) wants() layout.Wants {
 
 // treeWidth is the default tree column until the width becomes configurable.
 const treeWidth = 30
-
-// renderBody paints the body rows, including a floating tree when the layout
-// decided to overlay it.
-func (m Model) renderBody(regions layout.Regions) []string {
-	// The body is as wide as the editor plus whatever the tree takes to its left.
-	// Using the editor's width alone leaves the tree's columns off the frame, and
-	// with a side-by-side tree the row comes up exactly tree-width short.
-	bodyWidth := regions.Editor.X + regions.Editor.Width
-
-	rows := make([]string, 0, regions.Editor.Height)
-	for range regions.Editor.Height {
-		rows = append(rows, strings.Repeat(" ", bodyWidth))
-	}
-
-	if !regions.Tree.Empty() {
-		m.paintTree(rows, regions)
-	}
-	return rows
-}
-
-// paintTree writes the tree into the body, either in its own column or over the
-// editor's left edge.
-func (m Model) paintTree(rows []string, regions layout.Regions) {
-	for row := 0; row < regions.Tree.Height && row < len(rows); row++ {
-		text := layout.Pad("", regions.Tree.Width)
-		if row == 0 {
-			text = layout.Pad(" "+string(focus.Tree)+" ", regions.Tree.Width)
-		}
-		rows[row] = overlayCells(rows[row], text, regions.Tree.X)
-	}
-}
 
 // overlayCells writes text over a row starting at a cell offset, replacing as many
 // cells as the text occupies.
@@ -296,24 +419,4 @@ func sliceCells(row string, from, width int) string {
 		taken += cellWidth
 	}
 	return out.String()
-}
-
-// renderRow paints a one-line surface.
-func (m Model) renderRow(name string, region layout.Region) string {
-	if region.Empty() {
-		return ""
-	}
-	return layout.Pad(" "+name+" ", region.Width)
-}
-
-// statusLine is the bottom row.
-func (m Model) statusLine() string {
-	line := " " + string(m.surface)
-	if m.application.Status != "" {
-		line += "  " + m.application.Status
-	}
-	if m.application.Quit {
-		line += "  [encerrando]"
-	}
-	return line
 }
