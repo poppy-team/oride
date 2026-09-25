@@ -162,7 +162,7 @@ func (m *Model) handleKey(key tea.KeyPressMsg) {
 	// keystroke. Nothing below runs while one is open — not the focus traversal,
 	// not the keymap, not typing — because a key typed into a filter that also
 	// edited the buffer behind it would be a data-loss bug, not a nuisance.
-	if m.overlay.Captures() {
+	if m.capturesInput() {
 		m.handleOverlayKey(key)
 		return
 	}
@@ -580,11 +580,27 @@ func (m *Model) openOverlayFor(chord string) bool {
 	return true
 }
 
+// capturesInput reports whether an overlay owns the keyboard.
+//
+// Two overlays exist and they are not the same thing: the TUI's own (the palette,
+// which-key and help) and the model's, which the oracle dumps and which the search
+// uses. Checking only the first was a real defect — opening the search bar set the
+// model's overlay, the TUI saw none, and typing went into the document behind the
+// bar.
+func (m Model) capturesInput() bool {
+	return m.overlay.Captures() || m.application.Overlay != overlayNone
+}
+
 // handleOverlayKey routes a keystroke inside an open overlay.
 //
 // Nothing here reaches the model. Closing is the only way back, which is what
 // makes the capture rule hold in both directions.
 func (m *Model) handleOverlayKey(key tea.KeyPressMsg) {
+	if m.application.Overlay == overlayFind {
+		m.handleFindKey(key)
+		return
+	}
+
 	chord := key.Keystroke()
 
 	switch chord {
@@ -616,6 +632,90 @@ func (m *Model) handleOverlayKey(key tea.KeyPressMsg) {
 		m.selected = 0
 	}
 }
+
+// handleFindKey routes a keystroke inside the search bar.
+//
+// Typing goes into the query and the matches are recomputed on every keystroke, so
+// the highlight follows what is being typed. Nothing here reaches the document:
+// the capture rule holds in both directions.
+func (m *Model) handleFindKey(key tea.KeyPressMsg) {
+	chord := key.Keystroke()
+
+	switch chord {
+	case "escape", "esc", "ctrl+c":
+		m.application.Overlay = overlayNone
+		return
+	case "enter":
+		_ = m.application.Apply(action.FindNext)
+		return
+	case "shift+enter":
+		_ = m.application.Apply(action.FindPrev)
+		return
+	case "tab":
+		// The replacement field is revealed, not switched to: the query stays
+		// visible while the replacement is typed, because the two are read
+		// together.
+		m.application.Find.ShowReplace = !m.application.Find.ShowReplace
+		return
+	case "backspace":
+		m.backspaceFind()
+		return
+	}
+
+	text := key.Text
+	if text == "" && isTypable(chord) {
+		text = chord
+	}
+	if text != "" && isTypable(text) {
+		m.appendFind(text)
+	}
+}
+
+// appendFind adds typed text to whichever field is being edited, then searches.
+func (m *Model) appendFind(text string) {
+	if m.application.Find.ShowReplace {
+		m.application.Find.Replace += text
+		return
+	}
+	m.application.Find.Query += text
+	m.recomputeFind()
+}
+
+// backspaceFind removes the last rune from whichever field is being edited.
+//
+// A rune, not a byte: an accented letter would otherwise take two presses to
+// delete and leave an invalid fragment behind.
+func (m *Model) backspaceFind() {
+	target := &m.application.Find.Query
+	if m.application.Find.ShowReplace {
+		target = &m.application.Find.Replace
+	}
+
+	runes := []rune(*target)
+	if len(runes) == 0 {
+		return
+	}
+	*target = string(runes[:len(runes)-1])
+
+	if !m.application.Find.ShowReplace {
+		m.recomputeFind()
+	}
+}
+
+// recomputeFind re-runs the search against the document.
+//
+// A missing document leaves the previous matches alone rather than clearing them:
+// an empty buffer would otherwise look like a query that stopped matching.
+func (m *Model) recomputeFind() {
+	document, err := m.application.Store.Active()
+	if err != nil {
+		return
+	}
+	m.application.Find.Recompute(document.Buffer().String())
+}
+
+// overlayNone is the model's value for no overlay open.
+const overlayNone = "none"
 
 // closeOverlay returns input to the surfaces.
 func (m *Model) closeOverlay() {

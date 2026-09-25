@@ -196,3 +196,125 @@ func TestOverlayKeepsTheChromeVisible(t *testing.T) {
 		t.Errorf("a statusbar sumiu: %q", rows[29])
 	}
 }
+
+// TestTheFindOverlayCapturesTyping is the capture rule applied to the model's
+// overlay rather than the TUI's.
+//
+// They are two different things: opening the search bar sets the model's overlay,
+// and an earlier version checked only the TUI's — so the bar appeared and typing
+// went into the document behind it.
+func TestTheFindOverlayCapturesTyping(t *testing.T) {
+	model := sized(t, newModel(t, nil), 100, 30)
+	model.application.Store.OpenEmpty()
+	document, _ := model.application.Store.Active()
+	_ = document.InsertText("alfa beta\n")
+
+	model.application.Overlay = overlayFind
+	before := document.Buffer().String()
+
+	for _, r := range "bet" {
+		updated, _ := model.Update(key(string(r)))
+		model = updated.(Model)
+	}
+
+	if got := document.Buffer().String(); got != before {
+		t.Errorf("o documento mudou com a barra aberta: %q", got)
+	}
+	if got := model.application.Find.Query; got != "bet" {
+		t.Errorf("consulta = %q, esperado \"bet\"", got)
+	}
+}
+
+// TestTypingSearchesAsItGoes: the highlight has to follow what is being typed.
+func TestTypingSearchesAsItGoes(t *testing.T) {
+	model := sized(t, newModel(t, nil), 100, 30)
+	model.application.Store.OpenEmpty()
+	document, _ := model.application.Store.Active()
+	_ = document.InsertText("alfa beta alfa\n")
+
+	model.application.Overlay = overlayFind
+	for _, r := range "alfa" {
+		updated, _ := model.Update(key(string(r)))
+		model = updated.(Model)
+	}
+
+	if got := len(model.application.Find.Matches); got != 2 {
+		t.Errorf("casamentos = %d, esperado 2", got)
+	}
+}
+
+// TestBackspaceInTheQueryRemovesARuneNotAByte.
+func TestBackspaceInTheQueryRemovesARuneNotAByte(t *testing.T) {
+	model := sized(t, newModel(t, nil), 100, 30)
+	model.application.Overlay = overlayFind
+	model.application.Find.Query = "aç"
+
+	updated, _ := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyBackspace}))
+	model = updated.(Model)
+
+	if got := model.application.Find.Query; got != "a" {
+		t.Errorf("consulta = %q, esperado \"a\"", got)
+	}
+}
+
+// TestEscapeClosesTheFindBar: closing is the only way the document gets input
+// back, so it has to work from the bar.
+func TestEscapeClosesTheFindBar(t *testing.T) {
+	model := sized(t, newModel(t, nil), 100, 30)
+	model.application.Store.OpenEmpty()
+	model.application.Overlay = overlayFind
+
+	updated, _ := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyEscape}))
+	model = updated.(Model)
+
+	if model.capturesInput() {
+		t.Error("Esc não devolveu a entrada às superfícies")
+	}
+
+	updated, _ = model.Update(key("z"))
+	model = updated.(Model)
+	if got := bufferText(t, model); got != "z" {
+		t.Errorf("depois de fechar, digitar não alcançou o buffer: %q", got)
+	}
+}
+
+// TestTabRevealsTheReplaceFieldAndKeepsTheQuery: the two are read together, so
+// revealing the replacement must not hide what is being searched.
+func TestTabRevealsTheReplaceFieldAndKeepsTheQuery(t *testing.T) {
+	model := sized(t, newModel(t, nil), 100, 30)
+	model.application.Overlay = overlayFind
+	model.application.Find.Query = "alfa"
+
+	updated, _ := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyTab}))
+	model = updated.(Model)
+
+	if !model.application.Find.ShowReplace {
+		t.Error("Tab não revelou o campo de substituição")
+	}
+	if got := model.application.Find.Query; got != "alfa" {
+		t.Errorf("a consulta foi perdida: %q", got)
+	}
+	if got := model.findHeight(); got != 2 {
+		t.Errorf("altura = %d, esperado 2 com o campo revelado", got)
+	}
+}
+
+// TestTypingGoesToTheReplaceFieldOnceRevealed.
+func TestTypingGoesToTheReplaceFieldOnceRevealed(t *testing.T) {
+	model := sized(t, newModel(t, nil), 100, 30)
+	model.application.Overlay = overlayFind
+	model.application.Find.Query = "alfa"
+	model.application.Find.ShowReplace = true
+
+	for _, r := range "ALFA" {
+		updated, _ := model.Update(key(string(r)))
+		model = updated.(Model)
+	}
+
+	if got := model.application.Find.Replace; got != "ALFA" {
+		t.Errorf("substituição = %q, esperado \"ALFA\"", got)
+	}
+	if got := model.application.Find.Query; got != "alfa" {
+		t.Errorf("a consulta foi alterada: %q", got)
+	}
+}
