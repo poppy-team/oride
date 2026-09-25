@@ -400,6 +400,12 @@ func MissingReadme(w Workspace) []string {
 			if strings.HasPrefix(entry.Name(), ".") {
 				return fs.SkipDir
 			}
+			// testdata is a compiler convention, ignored by the toolchain and
+			// holding fixtures rather than documentation. A README there would
+			// be a document nobody reads about a file nobody reads.
+			if entry.Name() == "testdata" {
+				return fs.SkipDir
+			}
 			readme := filepath.Join(path, "README.md")
 			if info, statErr := os.Stat(readme); statErr != nil || info.IsDir() {
 				rel, _ := filepath.Rel(w.Root, path)
