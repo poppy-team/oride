@@ -4,7 +4,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ori-team/oride/internal/config"
 	"github.com/ori-team/oride/internal/tui/layout"
+	"github.com/ori-team/oride/internal/tui/theme"
 )
 
 func lines(count int) []string {
@@ -130,4 +132,115 @@ func TestAnEmptyDocumentStillRenders(t *testing.T) {
 			t.Errorf("linha com %d células", layout.Width(row))
 		}
 	}
+}
+
+// selection builds a view with a selection over the given document range.
+func selection(startLine, startColumn, endLine, endColumn int) Selection {
+	return Selection{
+		Start: Position{Line: startLine, Column: startColumn},
+		End:   Position{Line: endLine, Column: endColumn},
+	}
+}
+
+// TestSelectionIsPaintedOnlyInsideItsRange is the rule that keeps the tint honest:
+// a background across the whole row would claim the selection reaches the edge of
+// the screen, which it does not.
+func TestSelectionIsPaintedOnlyInsideItsRange(t *testing.T) {
+	view := View{Lines: []string{"abcdefghij"}, Selection: selection(0, 2, 0, 5), Theme: colourTheme()}
+
+	row := Render(20, 1, view)[0]
+	if !strings.ContainsRune(row, 0x1b) {
+		t.Fatalf("nada foi pintado: %q", row)
+	}
+	// As células fora da seleção continuam sem estilo: o prefixo e o sufixo não
+	// podem carregar o realce.
+	if strings.HasPrefix(row, "\x1b") {
+		t.Errorf("o prefixo foi tingido junto: %q", row)
+	}
+	if got := layout.Width(row); got != 20 {
+		t.Errorf("linha com %d células", got)
+	}
+}
+
+// TestSelectionOnTheFirstAndLastLineIsPartial: every line between them is selected
+// whole, and the two ends are not.
+func TestSelectionOnTheFirstAndLastLineIsPartial(t *testing.T) {
+	lines := []string{"primeira", "meio", "ultima"}
+	view := View{Lines: lines, Selection: selection(0, 3, 2, 2), Theme: colourTheme()}
+
+	rows := Render(20, 3, view)
+	for index, row := range rows {
+		if !strings.ContainsRune(row, 0x1b) {
+			t.Errorf("linha %d não foi pintada: %q", index, row)
+		}
+		if got := layout.Width(row); got != 20 {
+			t.Errorf("linha %d com %d células", index, got)
+		}
+	}
+}
+
+// TestAnEmptySelectionPaintsNothing: a collapsed selection is a caret, and tinting
+// the character under the cursor would misrepresent it.
+func TestAnEmptySelectionPaintsNothing(t *testing.T) {
+	view := View{Lines: []string{"abcdef"}, Selection: Selection{Empty: true}, Theme: colourTheme()}
+
+	if row := Render(20, 1, view)[0]; strings.ContainsRune(row, 0x1b) {
+		t.Errorf("seleção vazia foi pintada: %q", row)
+	}
+}
+
+// TestASelectionPastTheEndOfTheLineDoesNotBreakTheWidth: the arithmetic would go
+// negative, and a negative width renders as garbage.
+func TestASelectionPastTheEndOfTheLineDoesNotBreakTheWidth(t *testing.T) {
+	cases := []Selection{
+		selection(0, 50, 0, 90),
+		selection(0, 0, 0, 500),
+		selection(0, 3, 0, 1),
+	}
+	for _, sel := range cases {
+		for _, width := range []int{10, 20, 40} {
+			row := Render(width, 1, View{Lines: []string{"curta"}, Selection: sel, Theme: colourTheme()})[0]
+			if got := layout.Width(row); got != width {
+				t.Errorf("%+v largura %d: linha com %d células", sel, width, got)
+			}
+		}
+	}
+}
+
+// TestSelectionSurvivesWideCharacters: the range is in cells, and slicing by byte
+// would land in the middle of a wide character.
+func TestSelectionSurvivesWideCharacters(t *testing.T) {
+	view := View{Lines: []string{"日本語のテキスト"}, Selection: selection(0, 2, 0, 8), Theme: colourTheme()}
+
+	for _, width := range []int{20, 30} {
+		row := Render(width, 1, view)[0]
+		if got := layout.Width(row); got != width {
+			t.Errorf("largura %d: linha com %d células", width, got)
+		}
+		if !strings.ContainsRune(row, 0x1b) {
+			t.Errorf("largura %d: nada foi pintado", width)
+		}
+	}
+}
+
+// TestSelectionFollowsTheSliceOffset: the viewport draws a slice, so a selection
+// on document line 40 must paint when that line is the slice's first row.
+func TestSelectionFollowsTheSliceOffset(t *testing.T) {
+	view := View{
+		Lines:     []string{"alvo"},
+		Offset:    40,
+		Selection: selection(40, 0, 40, 4),
+		Theme:     colourTheme(),
+	}
+
+	if row := Render(20, 1, view)[0]; !strings.ContainsRune(row, 0x1b) {
+		t.Errorf("a seleção não seguiu o deslocamento da fatia: %q", row)
+	}
+}
+
+// colourTheme is the shipped palette at full colour, so the tests exercise the
+// painting path rather than only the plain one.
+func colourTheme() theme.Theme {
+	shipped := config.Default()
+	return theme.New(shipped.UI, shipped.Syntax, theme.TrueColor)
 }

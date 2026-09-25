@@ -429,8 +429,34 @@ func (m Model) editorView(regions layout.Regions) editorview.View {
 		view.Caret = editorview.Position{Line: caret.Line, Column: caret.Column}
 		view.HasCaret = true
 	}
+	view.Selection = selectionOf(document)
 	view.Lines, view.Offset = visibleLines(document, regions.Editor.Height, view.Caret.Line)
 	return view
+}
+
+// selectionOf converts the document's byte-range selection into the line and
+// column coordinates the viewport paints in.
+//
+// The document keeps offsets in bytes, because that is the canonical index; the
+// viewport paints cells, so the conversion happens here, once, at the boundary
+// between the two — and a selection that cannot be resolved paints nothing rather
+// than failing the frame.
+func selectionOf(document *editor.Document) editorview.Selection {
+	selection := document.Selection()
+	if selection.IsEmpty() {
+		return editorview.Selection{Empty: true}
+	}
+
+	start, startErr := document.Buffer().ByteToCaret(selection.Start())
+	end, endErr := document.Buffer().ByteToCaret(selection.End())
+	if startErr != nil || endErr != nil {
+		return editorview.Selection{Empty: true}
+	}
+
+	return editorview.Selection{
+		Start: editorview.Position{Line: start.Line, Column: start.Column},
+		End:   editorview.Position{Line: end.Line, Column: end.Column},
+	}
 }
 
 // visibleLines extracts the rows the viewport can show.

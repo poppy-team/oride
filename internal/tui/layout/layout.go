@@ -263,6 +263,36 @@ var ellipsisWidth = condition.StringWidth(ellipsis)
 // fallbackMarker fits a single column, for the case where the ellipsis does not.
 const fallbackMarker = "."
 
+// Slice extracts width cells from text, starting at a cell offset.
+//
+// Cell arithmetic, not byte arithmetic: the layout measured in cells, and taking
+// a substring by byte is how a row with a wide character in it ends up one column
+// short. It lives here because three callers needed it — the list overlay, the
+// composition root's overlay painting, and the editor's selection.
+func Slice(text string, from, width int) string {
+	if width <= 0 {
+		return ""
+	}
+
+	skipped := 0
+	taken := 0
+	var out strings.Builder
+
+	for _, r := range text {
+		cellWidth := condition.RuneWidth(r)
+		if skipped+cellWidth <= from {
+			skipped += cellWidth
+			continue
+		}
+		if taken+cellWidth > width {
+			break
+		}
+		out.WriteRune(r)
+		taken += cellWidth
+	}
+	return out.String()
+}
+
 // Pad fits text into exactly width cells, truncating when needed.
 //
 // Exactly, not at most: a row that comes back short lets whatever is to its
