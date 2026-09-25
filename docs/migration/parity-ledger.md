@@ -1,3 +1,7 @@
+> **Plano ativo de refatoração e dependências:** [`refactoring-plan.md`](./refactoring-plan.md).
+> Ele registra o saneamento pendente, as bibliotecas a acoplar e os próximos passos
+> de M4, M5 e M6 — inclusive o motivo de o gate ter passado com a TUI inutilizável.
+
 # Ledger de Paridade — Oride Rust → Go
 
 Registro de toda diferença entre o **oráculo Rust** (`crates/`) e a

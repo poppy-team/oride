@@ -7,7 +7,12 @@
 - Context methodology: **Lean Progressive Context (LPC)**
 - Last updated: `2026-09-25T00:00:00Z`
 
-## M3 — Shell TUI (em andamento)
+## Plano ativo
+
+Refatoração, saneamento e dependências: [`docs/migration/refactoring-plan.md`](docs/migration/refactoring-plan.md).
+Próximos passos de M4, M5 e M6 no mesmo documento.
+
+## M3 — Shell TUI
 
 ### M3.0 — Fundamentos verificáveis · **completo**
 
