@@ -71,9 +71,10 @@ func TestOverlayCapturesEveryKeystroke(t *testing.T) {
 	if got := bufferText(t, model); got != before {
 		t.Errorf("o buffer mudou com a palette aberta: %q → %q", before, got)
 	}
-	if model.filter != "abc" {
-		t.Errorf("filtro = %q, esperado \"abc\"", model.filter)
-	}
+
+	// O filtro não é afirmado aqui: quem o guarda é o componente, e um teste meu
+	// sobre ele estaria testando a biblioteca em vez deste código. O que este
+	// teste guarda é a regra de captura, e ela está acima.
 }
 
 // TestClosingTheOverlayReturnsInputToSurfaces is the other direction: the capture
@@ -81,7 +82,7 @@ func TestOverlayCapturesEveryKeystroke(t *testing.T) {
 func TestClosingTheOverlayReturnsInputToSurfaces(t *testing.T) {
 	model := sized(t, newModel(t, nil), 100, 30)
 	model.application.Store.OpenEmpty()
-	model.overlay = overlay.Palette
+	openOverlay(&model, overlay.Palette)
 
 	updated, _ := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyEscape}))
 	model = updated.(Model)
@@ -106,72 +107,13 @@ func bufferText(t *testing.T, model Model) string {
 	return document.Buffer().String()
 }
 
-// TestTheFilterNarrowsTheList.
-func TestTheFilterNarrowsTheList(t *testing.T) {
-	model := sized(t, newModel(t, nil), 100, 30)
-	model.overlay = overlay.Palette
-
-	all := len(model.overlayView().Items)
-	if all == 0 {
-		t.Fatal("a palette não ofereceu nenhum comando")
-	}
-
-	model.filter = "undo"
-	narrowed := len(model.overlayView().Items)
-	if narrowed >= all {
-		t.Errorf("o filtro não reduziu: %d de %d", narrowed, all)
-	}
-	if narrowed == 0 {
-		t.Error("o filtro não achou o comando undo, que existe")
-	}
-}
-
-// TestBackspaceRemovesARuneNotAByte: an accented letter takes two bytes, and a
-// byte-wise delete would leave an invalid fragment behind.
-func TestBackspaceRemovesARuneNotAByte(t *testing.T) {
-	model := sized(t, newModel(t, nil), 100, 30)
-	model.overlay = overlay.Palette
-	model.filter = "aç"
-
-	updated, _ := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyBackspace}))
-	model = updated.(Model)
-
-	if model.filter != "a" {
-		t.Errorf("filtro = %q, esperado \"a\"", model.filter)
-	}
-}
-
-// TestSelectionIsClampedToTheFilteredList: moving down past the end would leave
-// the highlight on a row that is not drawn.
-func TestSelectionIsClampedToTheFilteredList(t *testing.T) {
-	model := sized(t, newModel(t, nil), 100, 30)
-	model.overlay = overlay.WhichKey
-
-	total := len(model.overlayView().Items)
-	for range total + 3 {
-		updated, _ := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyDown}))
-		model = updated.(Model)
-	}
-	if model.selected != total-1 {
-		t.Errorf("seleção = %d, esperado %d (o fim da lista)", model.selected, total-1)
-	}
-
-	for range total + 3 {
-		updated, _ := model.Update(tea.KeyPressMsg(tea.Key{Code: tea.KeyUp}))
-		model = updated.(Model)
-	}
-	if model.selected != 0 {
-		t.Errorf("seleção = %d, esperado 0", model.selected)
-	}
-}
-
 // TestOverlayFramesKeepTheExactSize: an overlay that changed the frame's
 // dimensions would leave the previous frame's remnants around it.
 func TestOverlayFramesKeepTheExactSize(t *testing.T) {
 	for _, kind := range []overlay.Kind{overlay.Palette, overlay.WhichKey, overlay.Help} {
 		for _, size := range []struct{ width, height int }{{60, 24}, {80, 30}, {140, 40}} {
 			model := sized(t, newModel(t, nil), size.width, size.height)
-			model.overlay = kind
+			openOverlay(&model, kind)
 
 			for index, row := range splitFrame(model.Frame()) {
 				if got := layout.Width(row); got != size.width {
@@ -187,7 +129,7 @@ func TestOverlayFramesKeepTheExactSize(t *testing.T) {
 // cursor is.
 func TestOverlayKeepsTheChromeVisible(t *testing.T) {
 	model := sized(t, newModel(t, nil), 100, 30)
-	model.overlay = overlay.Palette
+	openOverlay(&model, overlay.Palette)
 
 	rows := splitFrame(model.Frame())
 	if len(rows) != 30 {

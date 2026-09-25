@@ -2,26 +2,23 @@
 
 Tudo que flutua acima das superfícies: palette, which-key, ajuda e os modais.
 
-**Um pacote, não quatro.** As quatro compartilham a mesma moldura — uma lista
-filtrada com título e dica, ou uma caixa centrada. Separar significaria ou três
-cópias do renderizador de lista, ou um quarto pacote guardando ele; o contrato
-pede coesão antes de pedir simetria.
+**É uma casca fina sobre o componente `list`**, não uma lista própria. Uma versão
+anterior escrevia à mão a lista, o filtro, a janela de scroll e a marcação da
+seleção — seis comportamentos que a biblioteca de componentes já tinha, testados,
+na versão que o plano de migração nomeava e que este projeto não adicionou. O
+resultado foram buracos invisíveis: o build passava, os testes passavam, e o
+programa não navegava.
 
 **A regra que este pacote carrega é a de captura.** `Kind.Captures()` responde a
 primeira regra de `docs/ui-ux/focus-graph.md`: com uma sobreposição ativa, nem a
-superfície com foco nem o keymap global são consultados. Sem isso, uma tecla
-digitada no filtro da palette também editaria o buffer atrás dela.
+superfície com foco nem o keymap global são consultados.
 
-**Duas funções, não quatro wrappers.** `List` e `Box` são os renderizadores; o
-modelo escolhe título, itens e dica. Funções `Palette`, `WhichKey` e `Help` que só
-repassassem argumentos seriam decoração sem uso, e o §1.6 do contrato proíbe
-abstração que não paga.
+**`Filtering()` existe para o Escape ter dois donos sem ambiguidade.** Enquanto o
+filtro está aberto, o Escape é dele; quando não está, é do painel. Fechar no
+primeiro Escape descartaria um filtro meio digitado que a pessoa queria corrigir.
 
-**A dica fica sempre na última linha**, qualquer que seja o conteúdo: uma dica que
-se move é uma dica que ninguém acha duas vezes.
+**A moldura é configurada aqui**, não pelo chamador: um chamador que esquecesse de
+desligar a barra de status receberia texto do componente num painel de duas linhas.
 
-**Vazio tem nome.** Uma palette sem resultados diz isso, em vez de mostrar uma
-caixa em branco — que é indistinguível de uma que falhou.
-
-**A caixa deixa margem**, para a superfície de trás continuar visível: uma
-sobreposição que cobre tudo não é uma sobreposição, é outra tela.
+**Título, itens e ciclo de vida são do chamador**; filtro, scroll e seleção são do
+componente. Essa divisão é o motivo de o pacote existir.

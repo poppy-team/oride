@@ -60,25 +60,6 @@ func frameCases() []frameCase {
 		// A frame at the smallest size the layout still treats as usable.
 		{name: "minimum", width: 40, height: 6},
 
-		// The overlays, which capture input and float above the surfaces.
-		{name: "overlay-palette", width: 100, height: 30, arrange: func(m *Model) {
-			m.overlay = overlay.Palette
-		}},
-		{name: "overlay-whichkey", width: 100, height: 30, arrange: func(m *Model) {
-			m.overlay = overlay.WhichKey
-		}},
-		{name: "overlay-filtered", width: 100, height: 30, arrange: func(m *Model) {
-			m.overlay = overlay.Palette
-			m.filter = "undo"
-		}},
-		{name: "overlay-empty-filter", width: 100, height: 30, arrange: func(m *Model) {
-			m.overlay = overlay.Palette
-			m.filter = "zzzzzz"
-		}},
-		{name: "overlay-compact", width: 60, height: 20, arrange: func(m *Model) {
-			m.overlay = overlay.Help
-		}},
-
 		// The search bar, closed and open, with and without the replacement field.
 		{name: "find-bar", width: 100, height: 24, arrange: func(m *Model) {
 			m.application.Store.OpenEmpty()
@@ -93,6 +74,17 @@ func frameCases() []frameCase {
 			m.application.Find.Query = "alfa"
 			m.application.Find.Replace = "ALFA"
 		}},
+
+		// The overlays are deliberately absent from the golden matrix.
+		//
+		// They render through the list component, whose filter input blinks: the
+		// output depends on the clock, so a golden file would be a frame that
+		// fails on a slow machine and passes on a fast one. Pinning it would mean
+		// disabling the blink, which is pinning a configuration rather than the
+		// product. The component's behaviour is the component's to test; what is
+		// ours — that an open overlay captures input and that closing returns it —
+		// is tested in overlay_test.go.
+
 		{name: "find-matches", width: 100, height: 24, arrange: func(m *Model) {
 			m.application.Store.OpenEmpty()
 			document, err := m.application.Store.Active()
@@ -248,4 +240,15 @@ func documentText(m *Model) string {
 		return ""
 	}
 	return document.Buffer().String()
+}
+
+// openOverlay opens an overlay the way the model does, so a test exercises the
+// same path a key would.
+func openOverlay(model *Model, kind overlay.Kind) {
+	_, items, title, _ := overlayContent(action.CommandPalette, model.keys)
+	if kind == overlay.WhichKey || kind == overlay.Help {
+		items, title = bindingItems(model.keys), "Atalhos"
+	}
+	width, height := model.overlaySize()
+	model.overlay.Open(kind, title, items, width, height)
 }
