@@ -1,0 +1,23 @@
+{
+  "description": "Controle do ledger B1 — movimento É fronteira de undo: digitar, mover e digitar produz dois grupos, e um undo remove apenas o que veio depois do movimento. O texto resultante é idêntico nos dois lados; o caret diverge pelo ledger B2.",
+  "divergence": {
+    "ledger": "B2",
+    "note": "Após o undo o oráculo clampa o caret para o fim do texto reduzido; o Go o devolve a onde o usuário estava antes da digitação desfeita."
+  },
+  "files": [
+    {
+      "path": "notas.txt",
+      "content": "alpha\n"
+    }
+  ],
+  "open": "notas.txt",
+  "steps": [
+    { "kind": "action", "action": "move_doc_end" },
+    { "kind": "text", "text": "AAA" },
+    { "kind": "action", "action": "move_left" },
+    { "kind": "action", "action": "move_left" },
+    { "kind": "text", "text": "BBB" },
+    { "kind": "action", "action": "undo" },
+    { "kind": "action", "action": "undo" }
+  ]
+}

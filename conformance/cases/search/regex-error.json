@@ -1,0 +1,18 @@
+{
+  "description": "Padrão de regex inválido. O motor reporta o erro em vez de estourar, e a busca fica vazia — mas o TEXTO do diagnóstico difere entre o `regex` do Rust e o `regexp` do Go, então este caso declara a divergência. O comportamento (erro reportado, zero matches, estado utilizável) é idêntico; só a redação muda.",
+  "divergence": {
+    "ledger": "B21",
+    "note": "As duas bibliotecas de regex descrevem um padrão inválido com palavras diferentes. Reproduzir a redação do Rust exigiria reimplementar o parser de erro dele, o que não vale o que custa."
+  },
+  "files": [
+    {
+      "path": "texto.txt",
+      "content": "valor = 42\n"
+    }
+  ],
+  "open": "texto.txt",
+  "steps": [
+    { "kind": "search", "query": "([sem fechar", "use_regex": true },
+    { "kind": "search", "query": "valor", "use_regex": true }
+  ]
+}

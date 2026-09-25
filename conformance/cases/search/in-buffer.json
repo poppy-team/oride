@@ -1,0 +1,49 @@
+{
+  "description": "Motor de busca no buffer: literal, com dobra de acentos, fronteira de palavra e regex. O passo `search` existe porque um driver scriptado não digita dentro de um overlay — e o que importa comparar são os offsets em bytes e a contagem de ocorrências, não a sobreposição visual. O caso do padrão inválido vive em regex-error.json, porque o texto do diagnóstico difere entre os dois motores.",
+  "files": [
+    {
+      "path": "texto.txt",
+      "content": "ação e acao\nGUI UI UIKit use UI.\nvalor = 42 e total = 7\nArvore arvore Árvore\n"
+    }
+  ],
+  "open": "texto.txt",
+  "steps": [
+    {
+      "kind": "search",
+      "query": "acao",
+      "ignore_accents": true
+    },
+    {
+      "kind": "search",
+      "query": "acao",
+      "ignore_accents": false
+    },
+    {
+      "kind": "search",
+      "query": "UI",
+      "case_sensitive": true,
+      "whole_word": true
+    },
+    {
+      "kind": "search",
+      "query": "UI",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "kind": "search",
+      "query": "\\d+",
+      "use_regex": true
+    },
+    {
+      "kind": "search",
+      "query": "Árvore",
+      "case_sensitive": true,
+      "ignore_accents": true
+    },
+    {
+      "kind": "search",
+      "query": ""
+    }
+  ]
+}

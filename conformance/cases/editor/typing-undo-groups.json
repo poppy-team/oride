@@ -1,0 +1,24 @@
+{
+  "description": "Guarda o boundary de undo no Enter (ledger B1, corrigido) e a restauração de seleção (ledger B2, onde o Go diverge de propósito). Passos 5-6: undo remove só xyz (27→24) e depois abc+Enter (24→20) — Enter fecha o grupo. Passo 7: o redo volta a 24 bytes; o oráculo deixa o caret em (2,0), o Go o coloca onde a edição o deixou (3,0).",
+  "divergence": {
+    "ledger": "B2",
+    "note": "O oráculo clampa o caret ao tamanho do buffer; o Go restaura a seleção gravada no grupo de undo, que é onde a edição terminou."
+  },
+  "files": [
+    {
+      "path": "notas.txt",
+      "content": "linha um\nlinha dois\n"
+    }
+  ],
+  "open": "notas.txt",
+  "steps": [
+    { "kind": "action", "action": "move_doc_end" },
+    { "kind": "text", "text": "abc" },
+    { "kind": "action", "action": "insert_newline" },
+    { "kind": "text", "text": "xyz" },
+    { "kind": "action", "action": "undo" },
+    { "kind": "action", "action": "undo" },
+    { "kind": "action", "action": "redo" },
+    { "kind": "action", "action": "undo" }
+  ]
+}

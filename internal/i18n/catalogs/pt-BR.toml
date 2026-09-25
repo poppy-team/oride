@@ -1,0 +1,55 @@
+id = "pt-BR"
+name = "Português (Brasil)"
+
+[menu]
+file = "Arquivo"
+edit = "Editar"
+view = "Exibir"
+go = "Ir"
+git = "Git"
+help = "Ajuda"
+
+[file_menu]
+new_tab = "Nova aba"
+open_file = "Abrir arquivo…"
+open_folder = "Abrir pasta…"
+save = "Salvar"
+save_as = "Salvar como…"
+save_all = "Salvar todos"
+reload_file = "Recarregar arquivo"
+quit = "Sair"
+
+[edit_menu]
+undo = "Desfazer"
+redo = "Refazer"
+cut = "Recortar"
+copy = "Copiar"
+paste = "Colar"
+select_all = "Selecionar tudo"
+find = "Localizar…"
+find_in_project = "Localizar no projeto…"
+replace = "Substituir…"
+toggle_comment = "Alternar comentário"
+
+[view_menu]
+command_palette = "Paleta de comandos…"
+toggle_tree = "Alternar árvore"
+toggle_terminal = "Alternar terminal"
+toggle_scm = "Painel Git/SCM"
+color_theme = "Tema de cores…"
+display_language = "Idioma da interface (Language)…"
+toggle_mouse = "Ativar / desativar mouse"
+
+[palette]
+theme_picker_title = "Preferências: Tema de Cores (Live Preview)"
+theme_picker_hint = "↑↓ Preview · Enter Aplica · Esc Cancela"
+locale_picker_title = "Preferências: Idioma da Interface"
+locale_picker_hint = "↑↓ Seleciona · Enter Aplica · Esc Cancela"
+palette_hint = "↑↓ · Enter executa · Esc"
+theme_applied = "tema aplicado e salvo: {name}"
+theme_cancelled = "troca de tema cancelada"
+locale_applied = "idioma alterado e salvo: {locale}"
+
+[status]
+mouse_on = "mouse: ON · clique/drag/scroll · desligar: Exibir → Mouse"
+mouse_off = "mouse: OFF · ligar: Exibir → Mouse"

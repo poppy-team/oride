@@ -1,0 +1,22 @@
+{
+  "description": "Reconfiguração de keymap: o caso rebinda um chord e o usa. Exercita o caminho em que a config do usuário substitui um binding default, e mostra no dump que o chord antigo continua ligado ao que estava — só o novo muda de ação.",
+  "files": [
+    {
+      "path": "notas.txt",
+      "content": "abc\n"
+    }
+  ],
+  "open": "notas.txt",
+  "config": {
+    "keys": {
+      "ctrl+p": "move_doc_end",
+      "f9": "select_all"
+    }
+  },
+  "steps": [
+    { "kind": "chord", "chord": "ctrl+p" },
+    { "kind": "text", "text": "!" },
+    { "kind": "chord", "chord": "f9" },
+    { "kind": "action", "action": "move_doc_start" }
+  ]
+}

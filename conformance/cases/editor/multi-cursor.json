@@ -1,0 +1,52 @@
+{
+  "description": "Multi-cursor: dois cursores adicionados por ação, digitação em todos, backspace em todos e undo. Exercita a ordenação dos cursores, a aplicação de edições do maior offset para o menor e o recálculo dos offsets após cada remoção.",
+  "files": [
+    {
+      "path": "tres.txt",
+      "content": "um\ndois\ntres\n"
+    }
+  ],
+  "open": "tres.txt",
+  "steps": [
+    {
+      "kind": "action",
+      "action": "move_doc_end"
+    },
+    {
+      "kind": "action",
+      "action": "add_cursor_above"
+    },
+    {
+      "kind": "action",
+      "action": "add_cursor_above"
+    },
+    {
+      "kind": "text",
+      "text": "!"
+    },
+    {
+      "kind": "action",
+      "action": "undo"
+    },
+    {
+      "kind": "action",
+      "action": "backspace"
+    },
+    {
+      "kind": "action",
+      "action": "undo"
+    },
+    {
+      "kind": "action",
+      "action": "clear_extra_cursors"
+    },
+    {
+      "kind": "action",
+      "action": "move_down"
+    }
+  ],
+  "divergence": {
+    "ledger": "B4, B2",
+    "note": "B4: após o undo o oráculo mantém cursores além do fim do buffer e o backspace seguinte não altera o texto; o Go os descarta e a edição funciona. B2: o caret restaurado difere."
+  }
+}

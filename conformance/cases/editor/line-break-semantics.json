@@ -1,0 +1,18 @@
+{
+  "description": "Qual conjunto de caracteres o oráculo conta como quebra de linha. Responde empiricamente o que não dá para ler do código: se U+2028, U+2029 e U+0085 separam linhas, `lines` é 5; se só \\n e \\r contam, é 2. O dump traz o texto completo, então o caso também pina contagem de bytes e scalars.",
+  "files": [
+    {
+      "path": "quebras.txt",
+      "content": "a\u2028b\u2029c\u0085d\ne"
+    },
+    {
+      "path": "crlf.txt",
+      "content": "um\r\ndois\r\ntres"
+    }
+  ],
+  "open": "quebras.txt",
+  "steps": [
+    { "kind": "action", "action": "move_doc_end" },
+    { "kind": "action", "action": "move_doc_start" }
+  ]
+}

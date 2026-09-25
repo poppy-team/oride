@@ -1,0 +1,55 @@
+id = "en-US"
+name = "English (US)"
+
+[menu]
+file = "File"
+edit = "Edit"
+view = "View"
+go = "Go"
+git = "Git"
+help = "Help"
+
+[file_menu]
+new_tab = "New tab"
+open_file = "Open file…"
+open_folder = "Open folder…"
+save = "Save"
+save_as = "Save as…"
+save_all = "Save all"
+reload_file = "Reload file"
+quit = "Quit"
+
+[edit_menu]
+undo = "Undo"
+redo = "Redo"
+cut = "Cut"
+copy = "Copy"
+paste = "Paste"
+select_all = "Select all"
+find = "Find…"
+find_in_project = "Find in project…"
+replace = "Replace…"
+toggle_comment = "Toggle comment"
+
+[view_menu]
+command_palette = "Command palette…"
+toggle_tree = "Toggle tree"
+toggle_terminal = "Toggle terminal"
+toggle_scm = "Toggle SCM panel"
+color_theme = "Color theme…"
+display_language = "Display Language (Idioma)…"
+toggle_mouse = "Enable / disable mouse"
+
+[palette]
+theme_picker_title = "Preferences: Color Theme (Live Preview)"
+theme_picker_hint = "↑↓ Preview · Enter Apply · Esc Cancel"
+locale_picker_title = "Preferences: Display Language"
+locale_picker_hint = "↑↓ Select · Enter Apply · Esc Cancel"
+palette_hint = "↑↓ · Enter execute · Esc"
+theme_applied = "theme applied and saved: {name}"
+theme_cancelled = "theme change cancelled"
+locale_applied = "language changed and saved: {locale}"
+
+[status]
+mouse_on = "mouse: ON · click/drag/scroll · turn off: View → Mouse"
+mouse_off = "mouse: OFF · turn on: View → Mouse"

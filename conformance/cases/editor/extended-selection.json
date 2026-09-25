@@ -1,0 +1,60 @@
+{
+  "description": "Seleção estendida por chords (shift+setas, shift+home/end), substituição da seleção pela digitação e undo. Exercita anchor/head orientados e o caminho em que digitar apaga a seleção antes de inserir.",
+  "files": [
+    {
+      "path": "notas.txt",
+      "content": "primeira linha\nsegunda linha\nterceira linha\n"
+    }
+  ],
+  "open": "notas.txt",
+  "steps": [
+    {
+      "kind": "chord",
+      "chord": "ctrl+home"
+    },
+    {
+      "kind": "chord",
+      "chord": "shift+right"
+    },
+    {
+      "kind": "chord",
+      "chord": "shift+right"
+    },
+    {
+      "kind": "chord",
+      "chord": "shift+right"
+    },
+    {
+      "kind": "text",
+      "text": "XYZ"
+    },
+    {
+      "kind": "action",
+      "action": "undo"
+    },
+    {
+      "kind": "chord",
+      "chord": "shift+end"
+    },
+    {
+      "kind": "chord",
+      "chord": "shift+down"
+    },
+    {
+      "kind": "chord",
+      "chord": "delete"
+    },
+    {
+      "kind": "action",
+      "action": "select_all"
+    },
+    {
+      "kind": "action",
+      "action": "undo"
+    }
+  ],
+  "divergence": {
+    "ledger": "B3, B2",
+    "note": "B3: o Go restaura a seleção que a edição substituiu; o oráculo a colapsa num caret. B2: o undo devolve o caret ao ponto da edição em vez de clampá-lo."
+  }
+}

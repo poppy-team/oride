@@ -1,0 +1,23 @@
+{
+  "description": "Indentação por Tab com espaços configurados, e o caminho oposto com tab literal. Exercita a configuração efetiva do editor ([editor].insert_spaces e tab_size) e a diferença entre digitar Tab e digitar quatro espaços.",
+  "files": [
+    {
+      "path": "codigo.txt",
+      "content": "inicio\n"
+    }
+  ],
+  "open": "codigo.txt",
+  "config": {
+    "tab_size": 2,
+    "insert_spaces": true
+  },
+  "steps": [
+    { "kind": "action", "action": "move_doc_end" },
+    { "kind": "text", "text": "\t" },
+    { "kind": "text", "text": "a" },
+    { "kind": "action", "action": "insert_tab" },
+    { "kind": "text", "text": "b" },
+    { "kind": "action", "action": "undo" },
+    { "kind": "action", "action": "undo" }
+  ]
+}

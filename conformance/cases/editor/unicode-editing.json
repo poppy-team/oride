@@ -1,0 +1,60 @@
+{
+  "description": "Edição sobre texto multi-byte: acentos, ideogramas e emoji. Exercita a conversão byte↔rune↔caret em digitação, movimento por chord (setas), backspace e undo. Qualquer erro de índice aparece no caret ou no texto.",
+  "files": [
+    {
+      "path": "unicode.txt",
+      "content": "ção\n日本語\n🙂fim\n"
+    }
+  ],
+  "open": "unicode.txt",
+  "steps": [
+    {
+      "kind": "chord",
+      "chord": "ctrl+end"
+    },
+    {
+      "kind": "text",
+      "text": "ç"
+    },
+    {
+      "kind": "chord",
+      "chord": "left"
+    },
+    {
+      "kind": "chord",
+      "chord": "left"
+    },
+    {
+      "kind": "text",
+      "text": "X"
+    },
+    {
+      "kind": "chord",
+      "chord": "backspace"
+    },
+    {
+      "kind": "chord",
+      "chord": "ctrl+home"
+    },
+    {
+      "kind": "chord",
+      "chord": "down"
+    },
+    {
+      "kind": "chord",
+      "chord": "end"
+    },
+    {
+      "kind": "action",
+      "action": "undo"
+    },
+    {
+      "kind": "action",
+      "action": "undo"
+    }
+  ],
+  "divergence": {
+    "ledger": "B2",
+    "note": "O oráculo clampa o caret ao estado atual; o Go o devolve a onde a edição desfeita aconteceu. O texto e as contagens batem."
+  }
+}
